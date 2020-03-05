@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="SquareImageView">
+        <attr name="angle" format="float"/>
+    </declare-styleable>
+
+    <declare-styleable name="AnimateSlider">
+        <attr name="slider_color" format="color"/>
+    </declare-styleable>
+    <declare-styleable name="PhotoCropView">
+        <attr name="standard_height" format="dimension"/>
+        <attr name="auto_standard" format="boolean"/>
+        <attr name="need_cover" format="boolean"/>
+        <attr name="cover_color" format="color"/>
+    </declare-styleable>
+    <!--CustomToolbar-->
+    <declare-styleable name="CustomToolbar">
+        <attr name="ct_title" format="string"/>
+        <attr name="ct_navigationType" format="enum">
+            <enum name="none" value="0"/>
+            <enum name="back" value="1"/>
+            <enum name="menu" value="2"/>
+            <enum name="close" value="3"/>
+            <enum name="home" value="4"/>
+        </attr>
+    </declare-styleable>
+</resources>
