@@ -7,6 +7,7 @@ import android.util.Log
 import com.example.lifecycle.R
 import com.example.lifecycle.base.BaseActivity
 import com.example.lifecycle.ui.activity.findfileguide.FindFileGuideActivity
+import com.example.lifecycle.ui.customview.ColorDialog
 import com.photo.utils.Constants
 import kotlinx.android.synthetic.main.activity_splash.*
 import java.io.*

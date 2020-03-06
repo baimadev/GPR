@@ -7,35 +7,45 @@
 
     </data>
 
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".ui.activity.MainActivity">
+        android:orientation="vertical">
 
-
-        <com.google.android.material.appbar.AppBarLayout
+        <LinearLayout
+            android:background="@color/colorPrimary"
+            android:id="@+id/topBar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:theme="@style/AppTheme.AppBarOverlay">
+            android:layout_height="?actionBarSize"
+            android:orientation="horizontal">
 
-            <com.example.lifecycle.base.CustomToolbar
-                android:id="@+id/tool_bar"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                android:background="?attr/colorPrimary"
-                app:popupTheme="@style/AppTheme.PopupOverlay" />
+            <ImageView
+                android:id="@+id/image_close"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/icon_global_close" />
 
-        </com.google.android.material.appbar.AppBarLayout>
+            <ImageView
+                android:layout_gravity="center"
+                android:id="@+id/image_color"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_color_lens_black_24dp" />
+        </LinearLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginTop="?actionBarSize">
+            android:layout_height="match_parent">
 
             <com.example.lifecycle.GPRImageView
                 android:id="@+id/matrix"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="20dp"
+                android:layout_marginBottom="50dp"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <Button
@@ -55,6 +65,6 @@
                 app:layout_constraintRight_toRightOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
 
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

@@ -5,21 +5,18 @@ import android.util.Log
 /**
  * 按行存储
  */
-data class Matrix(val row: Int,val column : Int,val matrix : Array<FloatArray?>) {
+data class GPRDataMatrix(val row: Int, val column : Int, val matrix : Array<FloatArray?>) {
 
 
-    fun clone():Matrix{
+    fun clone():GPRDataMatrix{
         val newMatrix = matrix.clone()
-        return Matrix(row,column, newMatrix)
+        return GPRDataMatrix(row,column, newMatrix)
     }
 
     fun printMatrix(){
         matrix.forEach {
-            val strBuffer = StringBuffer()
-            it?.forEach {
-               strBuffer.append(it.toString())
-            }
-            Log.d("xia",strBuffer.toString())
+
+            Log.d("xia","数组长度${it?.size}")
         }
     }
 
@@ -32,7 +29,7 @@ data class Matrix(val row: Int,val column : Int,val matrix : Array<FloatArray?>)
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
-        other as Matrix
+        other as GPRDataMatrix
 
         if (row != other.row) return false
         if (column != other.column) return false
@@ -49,8 +46,8 @@ data class Matrix(val row: Int,val column : Int,val matrix : Array<FloatArray?>)
     }
 
     companion object{
-        fun emptyMatrix():Matrix{
-            return  Matrix(0,0, emptyArray())
+        fun emptyMatrix():GPRDataMatrix{
+            return  GPRDataMatrix(0,0, emptyArray())
         }
     }
 }

@@ -63,11 +63,16 @@ dependencies {
     implementation 'com.tbruyelle.rxpermissions2:rxpermissions:0.9.5@aar'
     implementation 'io.reactivex.rxjava2:rxkotlin:2.3.0'
 
+    //缩放Image
+    implementation 'com.github.MikeOrtiz:TouchImageView:2.3.3' // Android X
     //DI
     implementation 'com.github.salomonbrys.kodein:kodein:4.1.0'
     implementation 'com.github.salomonbrys.kodein:kodein-conf:4.1.0'
     implementation 'com.github.salomonbrys.kodein:kodein-erased:4.1.0'
     implementation 'com.github.salomonbrys.kodein:kodein-android:4.1.0'
+
+    //spiner
+    implementation 'com.github.arcadefire:nice-spinner:1.4.4'
 
     //FM
     implementation 'com.github.Yumenokanata:FragmentManager:2.7.1'
