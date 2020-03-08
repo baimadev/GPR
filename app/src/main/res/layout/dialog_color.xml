@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="400dp"
+    android:layout_width="300dp"
     android:layout_height="wrap_content"
     android:background="@color/white"
     android:orientation="vertical">
@@ -31,10 +31,10 @@
 
     <SeekBar
         android:id="@+id/sb_bhd"
-        android:layout_width="300dp"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="40dp"
-        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
         app:layout_constraintLeft_toRightOf="@+id/tv_bhd"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="@+id/tv_bhd" />
@@ -53,10 +53,10 @@
 
     <SeekBar
         android:id="@+id/sb_ld"
-        android:layout_width="300dp"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="40dp"
-        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
         app:layout_constraintLeft_toRightOf="@+id/tv_ld"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="@+id/tv_ld" />
@@ -75,21 +75,21 @@
 
     <org.angmarch.views.NiceSpinner
         android:id="@+id/sp_sd"
-        android:layout_width="300dp"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="40dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
         android:visibility="gone"
-        app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintLeft_toRightOf="@+id/tv_sd"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="@+id/tv_sd" />
 
     <SeekBar
         android:id="@+id/sb_sd"
-        android:layout_width="300dp"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="40dp"
-        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
         app:layout_constraintLeft_toRightOf="@+id/tv_sd"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="@+id/tv_sd" />
