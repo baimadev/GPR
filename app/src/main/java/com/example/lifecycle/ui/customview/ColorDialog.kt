@@ -102,7 +102,7 @@ class ColorDialog (mContext: Context, val layoutId :Int,val gprImageView: GPRIma
             it.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener{
                 override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                     SharedPrefModel.mHue = progress * 1.0f / MID_VALUE
-                    SharedPrefModel.mHuePos = progress 
+                    SharedPrefModel.mHuePos = progress
                     setImageview()
                 }
 
