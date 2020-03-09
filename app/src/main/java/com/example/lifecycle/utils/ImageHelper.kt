@@ -3,13 +3,8 @@ package com.example.lifecycle.utils
 import android.graphics.*
 
 object ImageHelper {
-    fun  handleImageEffec(bm :Bitmap, hue: Float, saturation:Float,lum:Float):Bitmap {
-        //设置颜色的色调
-        val hueMatrix =  ColorMatrix()
-        //第一个参数，系统分别使用0、1、2来代表Red、Green、Blue三种颜色的处理；而第二个参数，就是需要处理的值
-        hueMatrix.setRotate(0, hue)
-        hueMatrix.setRotate(1, hue)
-        hueMatrix.setRotate(2, hue)
+    fun  handleImageEffec(bm :Bitmap, saturation:Float,lum:Float):Bitmap {
+
 
         //设置颜色的饱和度
         val saturationMatrix = ColorMatrix()
@@ -22,7 +17,7 @@ object ImageHelper {
 
         //将矩阵的作用效果混合，从而叠加处理效果
         val imageMatrix = ColorMatrix()
-        imageMatrix.postConcat(hueMatrix)
+
         imageMatrix.postConcat(saturationMatrix)
         imageMatrix.postConcat(lumMatrix)
 

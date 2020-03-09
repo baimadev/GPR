@@ -67,22 +67,12 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="20dp"
         android:layout_marginTop="20dp"
-        android:text="色调"
+        android:text="色相"
         android:textColor="@color/back"
         android:textSize="15sp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tv_ld" />
 
-    <org.angmarch.views.NiceSpinner
-        android:id="@+id/sp_sd"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:visibility="gone"
-        app:layout_constraintLeft_toRightOf="@+id/tv_sd"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/tv_sd" />
 
     <SeekBar
         android:id="@+id/sb_sd"

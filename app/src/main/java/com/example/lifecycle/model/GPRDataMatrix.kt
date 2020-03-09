@@ -1,16 +1,25 @@
 package com.example.lifecycle.model
 
 import android.util.Log
+import io.reactivex.Single
 
 /**
  * 按行存储
  */
-data class GPRDataMatrix(val row: Int, val column : Int, val matrix : Array<FloatArray?>) {
+data class GPRDataMatrix(var row: Int, var column : Int, var matrix : Array<FloatArray?>,var max :Float,var min :Float) {
 
 
     fun clone():GPRDataMatrix{
         val newMatrix = matrix.clone()
-        return GPRDataMatrix(row,column, newMatrix)
+        return GPRDataMatrix(row,column, newMatrix,max,min)
+    }
+
+    fun copy(gprDataMatrix: GPRDataMatrix){
+        row = gprDataMatrix.row
+        column = gprDataMatrix.column
+        matrix = gprDataMatrix.matrix
+        max = gprDataMatrix.max
+        min = gprDataMatrix.min
     }
 
     fun printMatrix(){
@@ -19,6 +28,32 @@ data class GPRDataMatrix(val row: Int, val column : Int, val matrix : Array<Floa
             Log.d("xia","数组长度${it?.size}")
         }
     }
+
+    //DC直流校正 垂直滤波
+    fun DCFiliter()= Single.fromCallable {
+        for( i in 0 until row){  //hang
+            val startJ = column*0.75.toInt()
+            var average = 0f
+            for( j in startJ until column){  //lie
+                average += matrix[i]!![j]
+            }
+            for( j in 0 until column){  //lie
+                matrix[i]!![j] -= average
+            }
+        }
+        this
+    }
+
+    //截断过滤器
+    fun TruncationFiliter(truncation : Float)= Single.fromCallable {
+        for( i in 0 until row){  //hang
+            for( j in 0 until column){  //lie
+                matrix[i]!![j] *= truncation
+            }
+        }
+        this
+    }
+
 
     override fun toString(): String {
         return "row = $row column = $column " +
@@ -47,7 +82,7 @@ data class GPRDataMatrix(val row: Int, val column : Int, val matrix : Array<Floa
 
     companion object{
         fun emptyMatrix():GPRDataMatrix{
-            return  GPRDataMatrix(0,0, emptyArray())
+            return  GPRDataMatrix(0,0, emptyArray(),0f,0f)
         }
     }
 }

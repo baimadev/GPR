@@ -27,11 +27,27 @@
                 android:src="@drawable/icon_global_close" />
 
             <ImageView
+            android:layout_gravity="center"
+            android:id="@+id/image_color"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_color_lens_black_24dp" />
+
+            <ImageView
                 android:layout_gravity="center"
-                android:id="@+id/image_color"
+                android:id="@+id/image_crop"
                 android:layout_width="wrap_content"
+                android:layout_marginLeft="@dimen/dp_10"
                 android:layout_height="wrap_content"
-                android:src="@drawable/ic_color_lens_black_24dp" />
+                android:src="@drawable/ic_crop_black_24dp" />
+
+            <ImageView
+                android:layout_gravity="center"
+                android:id="@+id/image_tf"
+                android:layout_width="wrap_content"
+                android:layout_marginLeft="@dimen/dp_10"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_crop_black_24dp" />
         </LinearLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout

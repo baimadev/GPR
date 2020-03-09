@@ -39,13 +39,7 @@ class ColorDialog (mContext: Context, val layoutId :Int,val gprImageView: GPRIma
         bt_close.setOnClickListener {
             this.dismiss()
         }
-        //spinner
-        val colorArray = listOf<Int>(R.drawable.ic_arrow_drop_down_black_24dp,R.drawable.brvah_sample_footer_loading_progress)
-        val adapter = SpinnerAdapter(context,colorArray,R.layout.item_spinner)
-        //sp_sd.setAdapter(adapter)
-        val dataset: List<String> =
-            LinkedList(Arrays.asList("One", "Two", "Three", "Four", "Five"))
-        sp_sd.attachDataSource(dataset)
+
         //seekbar
         //饱和度
         sb_bhd.let {
@@ -84,15 +78,14 @@ class ColorDialog (mContext: Context, val layoutId :Int,val gprImageView: GPRIma
             })
         }
 
-        //色调
+        //色相
         sb_sd.let {
-            it.max = MAX_VALUE
+            it.max = 270
             it.progress = SharedPrefModel.mHuePos
             it.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener{
                 override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                    SharedPrefModel.mHue = progress * 1.0f / MID_VALUE
                     SharedPrefModel.mHuePos = progress
-                    setImageview()
+                    gprImageView.drawBitmap(progress,GPRImageView.colorMode2)
                 }
 
                 override fun onStartTrackingTouch(seekBar: SeekBar?) {
@@ -111,7 +104,7 @@ class ColorDialog (mContext: Context, val layoutId :Int,val gprImageView: GPRIma
     }
 
     fun setImageview(){
-        val bitmap = ImageHelper.handleImageEffec(gprImageView.getCurrentBitmap(), SharedPrefModel.mHue, SharedPrefModel.mSaturation, SharedPrefModel.mLum)
+        val bitmap = ImageHelper.handleImageEffec(gprImageView.getCurrentBitmap(), SharedPrefModel.mSaturation, SharedPrefModel.mLum)
         gprImageView.setImageBitmap(bitmap)
     }
 }
