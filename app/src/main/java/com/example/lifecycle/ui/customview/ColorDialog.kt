@@ -80,12 +80,12 @@ class ColorDialog (mContext: Context, val layoutId :Int,val gprImageView: GPRIma
 
         //色相
         sb_sd.let {
-            it.max = 270
+            it.max = 11
             it.progress = SharedPrefModel.mHuePos
             it.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener{
                 override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                     SharedPrefModel.mHuePos = progress
-                    gprImageView.drawBitmap(progress,GPRImageView.colorMode2)
+                    gprImageView.drawBitmap(progress)
                 }
 
                 override fun onStartTrackingTouch(seekBar: SeekBar?) {

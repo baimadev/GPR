@@ -11,8 +11,8 @@
         android:id="@+id/bt_close"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="20dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="10dp"
         android:src="@drawable/ic_close_black_24dp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -39,9 +39,25 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="@+id/tv_truncation" />
 
+    <TextView
+        android:textColor="@color/back"
+        android:layout_marginLeft="11dp"
+        android:paddingBottom="5dp"
+        android:text="0"
+        app:layout_constraintLeft_toLeftOf="@+id/sb_truncation"
+        app:layout_constraintBottom_toTopOf="@+id/sb_truncation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 
-
-
+    <TextView
+        android:textColor="@color/back"
+        android:paddingBottom="5dp"
+        android:layout_marginLeft="10dp"
+        android:text="100%"
+        app:layout_constraintRight_toRightOf="@+id/sb_truncation"
+        app:layout_constraintBottom_toTopOf="@+id/sb_truncation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
     <ImageView
         android:id="@+id/image_done"
         android:src="@drawable/ic_done_black_24dp"

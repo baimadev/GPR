@@ -12,7 +12,18 @@ object SharedPrefModel : KotprefModel() {
     var mLum by floatPref(1f)
     var mTruncation by intPref(50)
 
-    var mHuePos by intPref(135)
+    var samples by intPref(0)
+    var samples2 by intPref(0)
+
+    var lastTrace by intPref(0)
+
+    var col by intPref(0)
+    var col2 by intPref(0)
+
+    var timeWindow by floatPref(0f)
+    var distanceInterval by floatPref(0f)
+
+    var mHuePos by intPref(0)
     var mSaturationPos by intPref(127)
     var mLumPos by intPref(127)
 

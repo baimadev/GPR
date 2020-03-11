@@ -22,6 +22,9 @@ import java.util.*
 class TFilterDialog (mContext: Context, val layoutId :Int):Dialog(mContext, R.style.MyDialog) {
 
     lateinit var truncationSinle : Single<Int>
+    var onProgressChange : ((Int) -> Unit)? = null
+    var mProgress:Int =0
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         window!!.setGravity(Gravity.CENTER_VERTICAL)
@@ -49,6 +52,8 @@ class TFilterDialog (mContext: Context, val layoutId :Int):Dialog(mContext, R.st
             it.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener{
                 override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                     SharedPrefModel.mTruncation = progress
+                    mProgress = progress
+
                 }
 
                 override fun onStartTrackingTouch(seekBar: SeekBar?) {
@@ -62,7 +67,7 @@ class TFilterDialog (mContext: Context, val layoutId :Int):Dialog(mContext, R.st
         }
 
         image_done.setOnClickListener {
-            truncationSinle = Single.just(SharedPrefModel.mTruncation)
+            onProgressChange?.invoke(mProgress)
             this.dismiss()
         }
     }

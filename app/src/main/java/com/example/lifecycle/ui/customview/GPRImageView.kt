@@ -6,11 +6,12 @@ import android.graphics.*
 import android.util.AttributeSet
 import com.example.lifecycle.R
 import com.example.lifecycle.model.GPRDataMatrix
+import com.example.lifecycle.utils.ColorUtils
 import com.example.lifecycle.utils.SharedPrefModel
 import com.ortiz.touchview.TouchImageView
 import io.reactivex.Single
 import kotlin.math.abs
-import kotlin.math.floor
+import kotlin.math.pow
 
 
 class GPRImageView(context: Context, attrs: AttributeSet) : TouchImageView(context, attrs) {
@@ -61,7 +62,7 @@ class GPRImageView(context: Context, attrs: AttributeSet) : TouchImageView(conte
                 val top = j * rectHeight
                 val bottom = top + rectHeight
                 val q = data.matrix[i]?.get(j)
-                paint.setColor(getColor(q))
+                paint.color = ColorUtils.coloj(q!!,data,0)
                 rect.set(left, top, right, bottom)
                 mCanvas.drawRect(rect, paint)
             }
@@ -78,30 +79,8 @@ class GPRImageView(context: Context, attrs: AttributeSet) : TouchImageView(conte
         return bitmap
     }
 
-    fun getColor(data: Float?): Int {
-        return if (data == null) {
-            Color.WHITE
-        } else {
-            val Q = (gprData!!.max - data) / (gprData!!.max - gprData!!.min)
-            val r1 = (Q * r + g + b).toInt()
-            val g1 = (r + Q * g + b).toInt()
-            val b1 = (r + g + Q * b).toInt()
-            val color = Color.argb(a, r1, g1, b1)
-            color
-        }
-    }
 
-    private fun getColor2(progress: Int, data: Float?): Int {
-        return if (data == null) {
-            Color.WHITE
-        } else {
-            val Q = (gprData!!.max - data) / (gprData!!.max - gprData!!.min)
-            val color = HSL_TO_RGB((progress + Q * 90).toInt())
-            color
-        }
-    }
-
-    fun drawBitmap(colorProgress:Int = SharedPrefModel.mHuePos,mode:Int = colorMode1){
+    fun drawBitmap(colorProgress:Int = SharedPrefModel.mHuePos){
         mCanvas = Canvas(bitmap)
         val rect = RectF(0f, 0f, rectWidth, rectHeight)
         for (i in 0 until gprData!!.row) {  //hang
@@ -112,11 +91,7 @@ class GPRImageView(context: Context, attrs: AttributeSet) : TouchImageView(conte
                 val top = j * rectHeight
                 val bottom = top + rectHeight
                 val q = gprData!!.matrix[i]?.get(j)
-                if(mode == colorMode1){
-                    paint.color = getColor(q)
-                }else if(mode == colorMode2){
-                    paint.color = getColor2(colorProgress, q)
-                }
+                paint.color = ColorUtils.coloj(q!!,gprData!!,colorProgress)
                 rect.set(left, top, right, bottom)
                 mCanvas.drawRect(rect, paint)
             }
@@ -194,4 +169,21 @@ class GPRImageView(context: Context, attrs: AttributeSet) : TouchImageView(conte
     }
 
 
+}
+
+fun dataToFactor(data:Float,matrix:GPRDataMatrix,k:Float = 0.8f):Float{
+    val max = colorFunction(matrix.max,k)
+    val min = colorFunction(matrix.min,k)
+    val num = colorFunction(data,k)
+    return (max - num)/(max - min)
+}
+
+fun colorFunction(num:Float,k: Float): Float {
+    return if(num < 0) {
+        -1* abs(num).toDouble().pow(k.toDouble()).toFloat()
+    }else if(num >0){
+        abs(num).toDouble().pow(k.toDouble()).toFloat()
+    }else{
+        0f
+    }
 }

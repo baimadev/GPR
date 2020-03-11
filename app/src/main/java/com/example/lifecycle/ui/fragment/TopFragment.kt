@@ -9,6 +9,7 @@ import com.example.lifecycle.model.GPRDataManager
 import com.example.lifecycle.ui.activity.SplashActivity
 import com.example.lifecycle.ui.customview.ColorDialog
 import com.example.lifecycle.ui.customview.TFilterDialog
+import com.example.lifecycle.utils.ColorUtils
 import com.example.lifecycle.utils.FileUtil
 import com.jakewharton.rxbinding2.view.RxView
 import com.photo.ui.fragment.base.BindingFragment
@@ -22,9 +23,13 @@ import kotlinx.android.synthetic.main.fragment_top.*
 import java.io.File
 
 
-class TopFragment : BindingFragment<FragmentTopBinding, TopViewModel>(TopViewModel::class.java, R.layout.fragment_top){
+class TopFragment : BindingFragment<FragmentTopBinding, TopViewModel>(
+    TopViewModel::class.java,
+    R.layout.fragment_top
+) {
 
     lateinit var gprImage: GPRImageView
+    val gprDataManager = GPRDataManager
 
     override fun initView() {
         gprImage = matrix
@@ -34,8 +39,9 @@ class TopFragment : BindingFragment<FragmentTopBinding, TopViewModel>(TopViewMod
 
         RxView.clicks(binding.imageClose)
             .doOnNext {
+                compositeDisposable.clear()
                 finish()
-                startActivity(Intent(context,SplashActivity::class.java))
+                startActivity(Intent(context, SplashActivity::class.java))
             }
             .bindLife()
 
@@ -43,66 +49,87 @@ class TopFragment : BindingFragment<FragmentTopBinding, TopViewModel>(TopViewMod
         //调色板
         RxView.clicks(binding.imageColor)
             .doOnNext {
-                val dialog = ColorDialog(context!!,R.layout.dialog_color,gprImage)
+                val dialog = ColorDialog(context!!, R.layout.dialog_color, gprImage)
                 dialog.show()
             }
             .bindLife()
         //DC
         RxView.clicks(binding.imageCrop)
             .doOnNext {
-                GPRDataManager
+                gprDataManager
                     .matrixA
                     .DCFiliter()
-                    .switchThread()
+                    .switchThread(subscribeOn = Schedulers.computation())
                     .netProgressDialog(context!!)
                     .doOnSuccess {
                         gprImage.updateData(it)
-                            .switchThread()
+                            //.switchThread()
                             .bindLife()
                     }
                     .bindLife()
             }
             .bindLife()
 
-        //截断滤波
+//        //截断滤波
+//        RxView.clicks(binding.imageTf)
+//            .doOnNext {
+//                val dialog = TFilterDialog(context!!, R.layout.dialog_tfilter)
+//                dialog.show()
+//                dialog.onProgressChange = { it: Int ->
+//                    gprDataManager
+//                        .matrixA
+//                        .TruncationFiliter(it / 100f)
+//                        .switchThread(subscribeOn = Schedulers.computation())
+//                        .netProgressDialog(context!!)
+//                        .doOnSuccess {
+//                            gprImage.updateData(it)
+//                                //.switchThread()
+//                                .bindLife()
+//                        }
+//                        .bindLife()
+//                }
+//
+//            }
+//            .bindLife()
+
+        //电位增益滤波
         RxView.clicks(binding.imageTf)
             .doOnNext {
-                val dialog = TFilterDialog(context!!,R.layout.dialog_tfilter)
+                val dialog = TFilterDialog(context!!, R.layout.dialog_tfilter)
                 dialog.show()
-                dialog.truncationSinle.doOnSuccess {
-                    GPRDataManager
+                dialog.onProgressChange = { it: Int ->
+                    gprDataManager
                         .matrixA
-                        .TruncationFiliter(it/100f)
-                        .switchThread()
+                        .PotentialGainFilter(it .toFloat())
+                        .switchThread(subscribeOn = Schedulers.computation())
                         .netProgressDialog(context!!)
                         .doOnSuccess {
                             gprImage.updateData(it)
+                                //.switchThread()
                                 .bindLife()
                         }
                         .bindLife()
-                }.bindLife()
+                }
+
             }
             .bindLife()
+
+
 
     }
 
     override fun initData() {
-        val rd3File = File(Constants.RD3)
-        Single.just(FileUtil.readFileToMatrix2(rd3File,2500))
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .netProgressDialog(context!!)
+        Single.just(ColorUtils.initColoracion())
+            .switchThread()
             .doOnSuccess {
-                GPRDataManager.initData(it)
                 // set the default image display type
-                gprImage.initImageBitmap(it)
+                gprImage.initImageBitmap(GPRDataManager.matrixT)
                     .switchThread()
                     .netProgressDialog(context!!)
                     .doOnSuccess {
                         gprImage.setImageBitmap(it)
                     }
                     .bindLife()
-                gprImage.invalidate()
             }
             .bindLife()
     }

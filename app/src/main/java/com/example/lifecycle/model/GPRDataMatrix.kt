@@ -2,11 +2,14 @@ package com.example.lifecycle.model
 
 import android.util.Log
 import io.reactivex.Single
+import java.lang.Math.pow
+import kotlin.math.abs
+import kotlin.math.atan
 
 /**
  * 按行存储
  */
-data class GPRDataMatrix(var row: Int, var column : Int, var matrix : Array<FloatArray?>,var max :Float,var min :Float) {
+data class GPRDataMatrix(var row: Int, var column : Int, var matrix : Array<FloatArray>,var max :Float,var min :Float) {
 
 
     fun clone():GPRDataMatrix{
@@ -29,7 +32,7 @@ data class GPRDataMatrix(var row: Int, var column : Int, var matrix : Array<Floa
         }
     }
 
-    //DC直流校正 垂直滤波
+    //DC直流分量校正 垂直滤波
     fun DCFiliter()= Single.fromCallable {
         for( i in 0 until row){  //hang
             val startJ = column*0.75.toInt()
@@ -51,9 +54,62 @@ data class GPRDataMatrix(var row: Int, var column : Int, var matrix : Array<Floa
                 matrix[i]!![j] *= truncation
             }
         }
+        //updateMM()
         this
     }
 
+    //电位增益滤波器
+    fun PotentialGainFilter(truncation : Float) = Single.fromCallable {
+
+        for( i in 0 until row){  //hang
+            for( j in 0 until column){  //lie
+                val number = matrix[i]!![j]
+                matrix[i]!![j] = (sgn(number) * pow(abs(number).toDouble(), truncation.toDouble())).toFloat()
+            }
+        }
+        updateMM()
+        this
+    }
+
+    //垂直推导滤波 需要知道纵向函数表达式
+    fun VerticalDerivationFilter(k : Int) = Single.fromCallable {
+
+
+        for( i in 0 until row){  //hang
+            for( j in 0 until column){  //lie
+                val d = (matrix[i]!![k*j]-matrix[i]!![k*(j-1)])/k
+                matrix[i]!![j] = atan(d)
+            }
+        }
+        updateMM()
+        this
+    }
+
+
+    fun sgn(number:Float):Int{
+        return when {
+            number>0 -> 1
+            number == 0f -> 0
+            else -> -1
+        }
+    }
+
+    //更新最大值最小值
+    fun updateMM(){
+        max = Float.MIN_VALUE
+        min = Float.MAX_VALUE
+        matrix.forEach{  //hang
+            //存储最大最小值
+            val cMax = it!!.max()!!
+            val cMin = it.min()!!
+            if(max < cMax){
+                max = cMax
+            }
+            if(min > cMin){
+                min = cMin
+            }
+        }
+    }
 
     override fun toString(): String {
         return "row = $row column = $column " +
