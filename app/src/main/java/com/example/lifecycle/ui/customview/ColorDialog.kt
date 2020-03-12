@@ -104,7 +104,7 @@ class ColorDialog (mContext: Context, val layoutId :Int,val gprImageView: GPRIma
     }
 
     fun setImageview(){
-        val bitmap = ImageHelper.handleImageEffec(gprImageView.getCurrentBitmap(), SharedPrefModel.mSaturation, SharedPrefModel.mLum)
+        val bitmap = ImageHelper.handleImageEffec(gprImageView.getCurrentBitmap()!!, SharedPrefModel.mSaturation, SharedPrefModel.mLum)
         gprImageView.setImageBitmap(bitmap)
     }
 }

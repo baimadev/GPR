@@ -1,25 +1,21 @@
 package com.example.lifecycle.ui.activity
 
 
+import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import com.example.lifecycle.R
 import com.example.lifecycle.base.BaseActivity
 import com.example.lifecycle.model.GPRDataManager
 import com.example.lifecycle.ui.activity.findfileguide.FindFileGuideActivity
-import com.example.lifecycle.ui.customview.ColorDialog
 import com.example.lifecycle.ui.customview.EditDialog
-import com.example.lifecycle.utils.ColorUtils
 import com.example.lifecycle.utils.FileUtil
 import com.example.lifecycle.utils.SharedPrefModel
-import com.photo.utils.Constants
-import com.photo.utils.netProgressDialog
-import com.photo.utils.switchThread
+import com.photo.utils.*
+import com.tbruyelle.rxpermissions2.RxPermissions
 import io.reactivex.Single
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_splash.*
 import java.io.*
 
@@ -28,13 +24,14 @@ class SplashActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
+
         if (isTaskRoot) init()
         else goToNextActivity()
     }
 
     private fun init(intent: Intent? = this.intent) {
 
-
+        checkPermission()
 
         bt_import_data.setOnClickListener {
             importFile()
@@ -62,18 +59,17 @@ class SplashActivity : BaseActivity() {
         val radFile = File(Constants.RAD)
 
         Single.just(FileUtil.readRad(radFile))
+            .netProgressDialog(this)
             .switchThread()
             .doOnSuccess {
                 //判断文件大小
-                if(SharedPrefModel.lastTrace>Constants.DefaultTraces){
+                if(SharedPrefModel.lastTrace> Constants.DefaultTraces){
                     val dialog  = EditDialog(this)
                     dialog.file = rd3File
                     dialog.onPartInput = {
-
+                        val progress = DialogUtil.showProgressDialogNow(dialog.context,true)
                         Single.just(FileUtil.readFileToMatrix(rd3File, it))
-                            .subscribeOn(Schedulers.io())
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .netProgressDialog(this)
+                            .switchThread()
                             .doOnSuccess { matrix ->
                                 GPRDataManager.initData(matrix)
                                 finish()
@@ -88,6 +84,7 @@ class SplashActivity : BaseActivity() {
             }
             .bindLife()
 
+
 //        Single.just(FileUtil.readRd3(realRD3))
 //            .switchThread()
 //            .netProgressDialog(context!!)
@@ -95,4 +92,25 @@ class SplashActivity : BaseActivity() {
 
     }
 
+
+    @SuppressLint("CheckResult")
+    fun checkPermission() {
+        val permission = RxPermissions(this)
+        permission.setLogging(true)
+
+        if (!permission.isGranted(Manifest.permission.READ_EXTERNAL_STORAGE) || !permission.isGranted(
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            )
+        ) {
+            permission.request(
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            )
+                .subscribe {
+                    if (!it) {
+                        Toast.makeText(this, "请在设置中开启权限！", Toast.LENGTH_SHORT).show()
+                    }
+                }
+        }
+    }
 }

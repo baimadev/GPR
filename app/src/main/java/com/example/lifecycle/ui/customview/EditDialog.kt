@@ -58,11 +58,11 @@ class EditDialog (mContext: Context):Dialog(mContext, R.style.MyDialog) {
 
         image_done.setOnClickListener {
             val part = edit_part.text.toString()
-            if(part.isNotEmpty()){
+            if(part.isNotEmpty() && (part.toInt() in 1..SharedPrefModel.lastTrace/ Constants.DefaultTraces)){
                 onPartInput?.invoke(part.toInt())
                 this.dismiss()
             }else{
-                Toast.makeText(context,"请输入选择范围！", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context,"请输入正确范围的值！", Toast.LENGTH_SHORT).show()
             }
 
         }

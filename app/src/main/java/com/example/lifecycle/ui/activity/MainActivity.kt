@@ -22,7 +22,7 @@ class MainActivity : MainBaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main_base)
-        checkPermission()
+
         switchToStackByTag(Constants.MAIN_FRAGMENT_STACK)
         //matrix.setGPRData(data)
         //matrix.invalidate()
@@ -35,25 +35,5 @@ class MainActivity : MainBaseActivity() {
     override fun fragmentViewId(): Int = R.id.fragment_layout
 
 
-    @SuppressLint("CheckResult")
-    fun checkPermission() {
-        val permission = RxPermissions(this)
-        permission.setLogging(true)
-
-        if (!permission.isGranted(Manifest.permission.READ_EXTERNAL_STORAGE) || !permission.isGranted(
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
-            )
-        ) {
-            permission.request(
-                Manifest.permission.READ_EXTERNAL_STORAGE,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
-            )
-                .subscribe {
-                    if (!it) {
-                        Toast.makeText(this, "请在设置中开启权限！", Toast.LENGTH_SHORT).show()
-                    }
-                }
-        }
-    }
 
 }

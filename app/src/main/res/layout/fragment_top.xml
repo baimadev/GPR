@@ -55,12 +55,13 @@
             android:layout_height="match_parent">
 
             <com.example.lifecycle.ui.customview.GPRImageView
+                android:background="@color/background"
                 android:id="@+id/matrix"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginLeft="20dp"
+                android:layout_marginLeft="10dp"
                 android:layout_marginTop="10dp"
-                android:layout_marginRight="20dp"
+                android:layout_marginRight="200dp"
                 android:layout_marginBottom="50dp"
                 app:layout_constraintTop_toTopOf="parent" />
 

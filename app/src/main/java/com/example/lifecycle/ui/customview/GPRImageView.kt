@@ -9,6 +9,7 @@ import com.example.lifecycle.model.GPRDataMatrix
 import com.example.lifecycle.utils.ColorUtils
 import com.example.lifecycle.utils.SharedPrefModel
 import com.ortiz.touchview.TouchImageView
+import com.photo.utils.Constants
 import io.reactivex.Single
 import kotlin.math.abs
 import kotlin.math.pow
@@ -21,16 +22,23 @@ class GPRImageView(context: Context, attrs: AttributeSet) : TouchImageView(conte
     var rectHeight = 2f
     //雷达数据 i j
     var gprData: GPRDataMatrix? = null
+    // gprBitmap距view四边距离
+    val paddingLeft = 90f
+    val paddingTop = 120f
+    val paddingBottom = 60f
+    val paddingRight = 80f
+    val timeLinePL = 65f
+    val distanceLinePT = 65f
+    val lineLength = 10f
 
-    //rgb
-    var r = Color.red(resources.getColor(R.color.wh))
-    var g = Color.green(resources.getColor(R.color.wh))
-    var b = Color.blue(resources.getColor(R.color.wh))
-    var a = Color.alpha(resources.getColor(R.color.wh))
+    val colorBackground = R.color.background
+    val gprPaint = Paint()
+    val linePaint = Paint()
+    val textPaint = Paint()
 
-    val paint = Paint()
-
-    lateinit var bitmap: Bitmap
+    var gprBitmapWidth = 0
+    var gprBitmapHeight = 0
+    var bitmap: Bitmap? = null
     lateinit var mCanvas :Canvas
 
 //    fun setGPRData(gprData:GPRDataMatrix){
@@ -38,20 +46,127 @@ class GPRImageView(context: Context, attrs: AttributeSet) : TouchImageView(conte
 //    }
 
     init {
-        paint.color = resources.getColor(R.color.wh)
+        linePaint.color = Color.BLACK
+        linePaint.style = Paint.Style.STROKE
+        linePaint.strokeWidth = 5f
+        linePaint.strokeCap = Paint.Cap.SQUARE
+        textPaint.textSize = 40f
+        textPaint.color = Color.BLACK
+        textPaint.style = Paint.Style.FILL
+        textPaint.strokeWidth = 10f
+        gprBitmapHeight = (rectHeight * SharedPrefModel.samples).toInt()
+        gprBitmapWidth = (rectWidth * Constants.DefaultTraces).toInt()
+    }
+
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+        val widthMode=MeasureSpec.getMode(widthMeasureSpec)
+        val widthSize=MeasureSpec.getSize(widthMeasureSpec)
+
+        val heightMode=MeasureSpec.getMode(heightMeasureSpec)
+        val heightSize=MeasureSpec.getSize(heightMeasureSpec)
+
+        var width=(getPaddingLeft()+getPaddingRight()+paddingLeft+paddingRight+gprBitmapWidth).toInt()
+        var height=(getPaddingBottom()+getPaddingTop()+paddingBottom+paddingTop+gprBitmapHeight).toInt()
+
+        if(widthMode==MeasureSpec.EXACTLY){
+            //如果match_parent或者具体的值，直接赋值
+            width=widthSize
+        }
+        //高度跟宽度处理方式一样
+        if(heightMode==MeasureSpec.EXACTLY){
+            height=heightSize
+        }
+        //保存测量宽度和测量高度
+        setMeasuredDimension(width,height)
     }
 
     @SuppressLint("CheckResult", "DrawAllocation")
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
+        canvas!!.translate(0f,0f)
+        drawTimeLine(canvas)
+        drawDistanceLine(canvas)
+        drawDepthLine(canvas)
+        bitmap?.let {
+            canvas.drawBitmap(it,paddingLeft,paddingTop,gprPaint)
+        }
+
+    }
+
+    fun drawBackGround(canvas: Canvas) {
+        canvas.drawColor(colorBackground)
+    }
+
+    fun drawTimeLine(canvas: Canvas) {
+
+        canvas.drawLine(timeLinePL,paddingTop,timeLinePL,paddingTop+gprBitmapHeight,linePaint)
+        textPaint.textAlign = Paint.Align.RIGHT
+        var horizontalLineNumber = SharedPrefModel.timeWindow.toInt()/10
+        val horizontalLineSpace =  SharedPrefModel.samples/SharedPrefModel.timeWindow*10*rectHeight
+        var horizontalLineStartY = paddingTop
+        for(i in 0 .. horizontalLineNumber){
+            val startY = horizontalLineStartY+(i*horizontalLineSpace)
+            canvas.drawLine(timeLinePL-lineLength,startY,timeLinePL,startY,linePaint)
+            canvas.drawText((i*10).toString(),timeLinePL-20,startY+15,textPaint)
+        }
+        canvas.drawLine(timeLinePL-lineLength,paddingTop+gprBitmapHeight,timeLinePL,paddingTop+gprBitmapHeight,linePaint)
+        canvas.drawText((String.format("%.2f",SharedPrefModel.timeWindow))+"ns",timeLinePL+80,paddingTop+gprBitmapHeight+50,textPaint)
+
+    }
+
+    fun drawDistanceLine(canvas: Canvas) {
+        canvas.drawLine(paddingLeft,distanceLinePT,paddingLeft+gprBitmapWidth,distanceLinePT,linePaint)
+        val distanceNumber = (SharedPrefModel.distanceInterval * Constants.DefaultTraces).toInt()/5
+        val verticalLineSpace = 5/SharedPrefModel.distanceInterval*rectWidth
+        var startX = paddingLeft
+        textPaint.textAlign = Paint.Align.CENTER
+        for(i in 0..distanceNumber){
+            val posX = startX + i*verticalLineSpace
+            canvas.drawLine(posX,distanceLinePT-lineLength,posX,distanceLinePT,linePaint)
+            canvas.drawText(String.format("%.1f",i.toFloat()),posX-10,distanceLinePT-20,textPaint)
+        }
+        canvas.drawLine(paddingLeft+gprBitmapWidth,distanceLinePT-lineLength,paddingLeft+gprBitmapWidth,distanceLinePT,linePaint)
+        canvas.drawText(String.format("%.1f",SharedPrefModel.distanceInterval*Constants.DefaultTraces)+"m",paddingLeft+gprBitmapWidth,distanceLinePT-20,textPaint)
+
+        val traceSpace = rectWidth*100
+        val traceNumber = Constants.DefaultTraces /100
+        for(i in 0..traceNumber){
+            val posX = startX + i*traceSpace
+            canvas.drawLine(posX,distanceLinePT+lineLength,posX,distanceLinePT,linePaint)
+            if(i == traceNumber){
+                canvas.drawText((i*100).toString()+"道",posX+10,distanceLinePT+45,textPaint)
+            }else{
+                canvas.drawText((i*100).toString(),posX-10,distanceLinePT+45,textPaint)
+            }
+
+        }
+
+    }
+
+    fun drawDepthLine(canvas: Canvas){
+        val depth = SharedPrefModel.timeWindow * (2.99792458E8 / Math.sqrt(6.0)) / 2.0E9
+
+        canvas.drawLine(paddingLeft+gprBitmapWidth,paddingTop,paddingLeft+,paddingTop+gprBitmapHeight,linePaint)
+        textPaint.textAlign = Paint.Align.RIGHT
+        var horizontalLineNumber = SharedPrefModel.timeWindow.toInt()/10
+        val horizontalLineSpace =  SharedPrefModel.samples/SharedPrefModel.timeWindow*10*rectHeight
+        var horizontalLineStartY = paddingTop
+        for(i in 0 .. horizontalLineNumber){
+            val startY = horizontalLineStartY+(i*horizontalLineSpace)
+            canvas.drawLine(timeLinePL-lineLength,startY,timeLinePL,startY,linePaint)
+            canvas.drawText((i*10).toString(),timeLinePL-20,startY+15,textPaint)
+        }
+        canvas.drawLine(timeLinePL-lineLength,paddingTop+gprBitmapHeight,timeLinePL,paddingTop+gprBitmapHeight,linePaint)
+        canvas.drawText((String.format("%.2f",SharedPrefModel.timeWindow))+"ns",timeLinePL+80,paddingTop+gprBitmapHeight+50,textPaint)
 
     }
 
     fun initImageBitmap(data: GPRDataMatrix): Single<Bitmap> = Single.fromCallable {
         //setColor(R.color.green)
-        bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        bitmap = Bitmap.createBitmap(gprBitmapWidth, gprBitmapHeight, Bitmap.Config.ARGB_8888)
         gprData = data
-        mCanvas = Canvas(bitmap)
+        mCanvas = Canvas(bitmap!!)
         // rectWidth = 1.5f
         val rect = RectF(0f, 0f, rectWidth, rectHeight)
         for (i in 0 until data.row) {  //hang
@@ -62,9 +177,9 @@ class GPRImageView(context: Context, attrs: AttributeSet) : TouchImageView(conte
                 val top = j * rectHeight
                 val bottom = top + rectHeight
                 val q = data.matrix[i]?.get(j)
-                paint.color = ColorUtils.coloj(q!!,data,0)
+                gprPaint.color = ColorUtils.coloj(q!!,data,0)
                 rect.set(left, top, right, bottom)
-                mCanvas.drawRect(rect, paint)
+                mCanvas.drawRect(rect, gprPaint)
             }
         }
         bitmap
@@ -75,13 +190,13 @@ class GPRImageView(context: Context, attrs: AttributeSet) : TouchImageView(conte
         drawBitmap()
     }
 
-    fun getCurrentBitmap(): Bitmap {
+    fun getCurrentBitmap(): Bitmap? {
         return bitmap
     }
 
 
     fun drawBitmap(colorProgress:Int = SharedPrefModel.mHuePos){
-        mCanvas = Canvas(bitmap)
+        mCanvas = Canvas(bitmap!!)
         val rect = RectF(0f, 0f, rectWidth, rectHeight)
         for (i in 0 until gprData!!.row) {  //hang
             val left = i * rectWidth
@@ -91,83 +206,13 @@ class GPRImageView(context: Context, attrs: AttributeSet) : TouchImageView(conte
                 val top = j * rectHeight
                 val bottom = top + rectHeight
                 val q = gprData!!.matrix[i]?.get(j)
-                paint.color = ColorUtils.coloj(q!!,gprData!!,colorProgress)
+                gprPaint.color = ColorUtils.coloj(q!!,gprData!!,colorProgress)
                 rect.set(left, top, right, bottom)
-                mCanvas.drawRect(rect, paint)
+                mCanvas.drawRect(rect, gprPaint)
             }
         }
         this.setImageBitmap(bitmap)
     }
-
-    //Convert HSL to RGB
-    //H: Hue ( 0 to 360 ) 
-    //S: Saturation ( 0 to 1 )
-    //L: Ligntness ( 0 to 1 )
-    private fun HSL_TO_RGB(H: Int, S: Int = 1, L: Float = 0.9f): Int {
-        var C: Float
-        if (L <= 0.5) C = 2 * L * S;
-        else C = (2 - 2 * L) * S;
-        var H2: Float = H / 60f
-        var X: Float = C * (1 - abs(H2 % 2 - 1))
-        var R: Float
-        var G: Float
-        var B: Float
-
-        when (H2) {
-
-            in 0..1 -> {
-                R = C
-                G = X
-                B = 0f
-            }
-            in 1..2 -> {
-                R = X
-                G = C
-                B = 0f
-            }
-            in 2..3 -> {
-                R = 0f
-                G = C
-                B = X
-            }
-            in 3..4 -> {
-                R = 0f
-                G = X
-                B = C
-            }
-            in 4..5 -> {
-                R = X
-                G = 0f
-                B = C
-            }
-            in 5..6 -> {
-                R = C
-                G = 0f
-                B = X
-            }
-            else -> {
-                R = 0f
-                G = 0f
-                B = 0f
-            }
-
-        }
-        var m: Int = (L - 0.5 * C).toInt()
-        R += m
-        G += m
-        B += m
-        val r = Math.floor((R * 255).toDouble()).toInt()
-        val g = Math.floor((G * 255).toDouble()).toInt()
-        val b = Math.floor((B * 255).toDouble()).toInt()
-        val color = Color.argb(a, r, g, b)
-        return color
-    }
-
-    companion object{
-        const val colorMode1 = 0xFF1 //黑白
-        const val colorMode2 = 0xFF2 //彩色
-    }
-
 
 }
 

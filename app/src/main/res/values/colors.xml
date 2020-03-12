@@ -6,5 +6,6 @@
     <color name="back">#000000</color>
     <color name="wh">#EEEEEE</color>
     <color name="green">#00B8D4</color>
-    <color name="blue">#2962FF</color>
+    <color name="background">#FFD740</color>
+    <color name="blue">#FFEA00</color>
 </resources>

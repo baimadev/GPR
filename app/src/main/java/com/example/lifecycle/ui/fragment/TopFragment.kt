@@ -122,12 +122,14 @@ class TopFragment : BindingFragment<FragmentTopBinding, TopViewModel>(
         Single.just(ColorUtils.initColoracion())
             .switchThread()
             .doOnSuccess {
+                val d =GPRDataManager.matrixT
+                d.printMatrix()
                 // set the default image display type
                 gprImage.initImageBitmap(GPRDataManager.matrixT)
                     .switchThread()
                     .netProgressDialog(context!!)
                     .doOnSuccess {
-                        gprImage.setImageBitmap(it)
+                       gprImage.invalidate()
                     }
                     .bindLife()
             }
