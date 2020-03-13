@@ -2,6 +2,7 @@ package com.example.lifecycle.ui.fragment
 
 import android.content.Intent
 import android.util.Log
+import android.view.ViewTreeObserver
 import com.example.lifecycle.ui.customview.GPRImageView
 import com.example.lifecycle.R
 import com.example.lifecycle.databinding.FragmentTopBinding
@@ -45,6 +46,9 @@ class TopFragment : BindingFragment<FragmentTopBinding, TopViewModel>(
             }
             .bindLife()
 
+        line_image.onTranslate = {
+            energy_image.updateData(it)
+        }
 
         //调色板
         RxView.clicks(binding.imageColor)
@@ -100,7 +104,7 @@ class TopFragment : BindingFragment<FragmentTopBinding, TopViewModel>(
                 dialog.onProgressChange = { it: Int ->
                     gprDataManager
                         .matrixA
-                        .PotentialGainFilter(it .toFloat())
+                        .PotentialGainFilter(it.toFloat())
                         .switchThread(subscribeOn = Schedulers.computation())
                         .netProgressDialog(context!!)
                         .doOnSuccess {
@@ -115,24 +119,23 @@ class TopFragment : BindingFragment<FragmentTopBinding, TopViewModel>(
             .bindLife()
 
 
-
     }
 
     override fun initData() {
-        Single.just(ColorUtils.initColoracion())
-            .switchThread()
-            .doOnSuccess {
-                val d =GPRDataManager.matrixT
-                d.printMatrix()
-                // set the default image display type
+
+        gprImage.onDrawObserver = {
+            if (gprImage.initFlag == 0){
+                gprImage.initFlag+=1
                 gprImage.initImageBitmap(GPRDataManager.matrixT)
                     .switchThread()
                     .netProgressDialog(context!!)
-                    .doOnSuccess {
-                       gprImage.invalidate()
-                    }
-                    .bindLife()
+                    .subscribe({
+                        gprImage.setImageBitmap(it)
+
+                    }, {
+                        Log.d("xia", it.message)
+                    })
             }
-            .bindLife()
+        }
     }
 }

@@ -11,6 +11,7 @@ import com.example.lifecycle.base.BaseActivity
 import com.example.lifecycle.model.GPRDataManager
 import com.example.lifecycle.ui.activity.findfileguide.FindFileGuideActivity
 import com.example.lifecycle.ui.customview.EditDialog
+import com.example.lifecycle.utils.ColorUtils
 import com.example.lifecycle.utils.FileUtil
 import com.example.lifecycle.utils.SharedPrefModel
 import com.photo.utils.*
@@ -44,6 +45,11 @@ class SplashActivity : BaseActivity() {
             )
 
         }
+
+        Single.just(ColorUtils.initColoracion())
+            .switchThread()
+            .bindLife()
+
     }
 
     private fun goToNextActivity(intent: Intent? = this.intent) {
@@ -67,7 +73,6 @@ class SplashActivity : BaseActivity() {
                     val dialog  = EditDialog(this)
                     dialog.file = rd3File
                     dialog.onPartInput = {
-                        val progress = DialogUtil.showProgressDialogNow(dialog.context,true)
                         Single.just(FileUtil.readFileToMatrix(rd3File, it))
                             .switchThread()
                             .doOnSuccess { matrix ->

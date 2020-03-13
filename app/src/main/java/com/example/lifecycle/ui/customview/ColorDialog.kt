@@ -13,7 +13,7 @@ import com.example.lifecycle.R
 import com.example.lifecycle.utils.ImageHelper
 import com.example.lifecycle.utils.SharedPrefModel
 import kotlinx.android.synthetic.main.dialog_color.*
-import java.util.*
+
 class ColorDialog (mContext: Context, val layoutId :Int,val gprImageView: GPRImageView):Dialog(mContext, R.style.MyDialog) {
 
     companion object{
@@ -47,7 +47,7 @@ class ColorDialog (mContext: Context, val layoutId :Int,val gprImageView: GPRIma
             it.progress = SharedPrefModel.mSaturationPos
             it.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener{
                 override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                    SharedPrefModel.mSaturation =progress * 1.0f/ MID_VALUE
+                    SharedPrefModel.mSaturation =progress * 1.0f/ MAX_VALUE
                     SharedPrefModel.mSaturationPos =progress
                     setImageview()
                 }
@@ -63,7 +63,7 @@ class ColorDialog (mContext: Context, val layoutId :Int,val gprImageView: GPRIma
             it.progress = SharedPrefModel.mLumPos
             it.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener{
                 override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                    SharedPrefModel.mLum = progress * 1.0f / MID_VALUE
+                    SharedPrefModel.mLum = progress * 1.0f / MAX_VALUE
                     SharedPrefModel.mLumPos = progress
                     setImageview()
                 }
@@ -86,6 +86,7 @@ class ColorDialog (mContext: Context, val layoutId :Int,val gprImageView: GPRIma
                 override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                     SharedPrefModel.mHuePos = progress
                     gprImageView.drawBitmap(progress)
+                    gprImageView.drawGprBitmapOnMain()
                 }
 
                 override fun onStartTrackingTouch(seekBar: SeekBar?) {
@@ -104,7 +105,9 @@ class ColorDialog (mContext: Context, val layoutId :Int,val gprImageView: GPRIma
     }
 
     fun setImageview(){
-        val bitmap = ImageHelper.handleImageEffec(gprImageView.getCurrentBitmap()!!, SharedPrefModel.mSaturation, SharedPrefModel.mLum)
-        gprImageView.setImageBitmap(bitmap)
+
+        val bitmap = ImageHelper.handleImageEffec(gprImageView.rawGprBitmap!!, SharedPrefModel.mSaturation, SharedPrefModel.mLum)
+        gprImageView.showGprBitmap = bitmap
+        gprImageView.drawGprBitmapOnMain()
     }
 }

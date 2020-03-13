@@ -8,4 +8,5 @@
     <color name="green">#00B8D4</color>
     <color name="background">#FFD740</color>
     <color name="blue">#FFEA00</color>
+    <color name="lineColor">#00FFFF</color>
 </resources>
