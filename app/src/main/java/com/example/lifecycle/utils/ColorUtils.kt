@@ -2,6 +2,7 @@ package com.example.lifecycle.utils
 
 import android.graphics.Color
 import android.graphics.Matrix
+import android.util.Log
 import com.example.lifecycle.model.GPRDataMatrix
 import com.example.lifecycle.ui.customview.dataToFactor
 

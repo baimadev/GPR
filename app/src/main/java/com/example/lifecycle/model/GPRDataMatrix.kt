@@ -1,6 +1,6 @@
 package com.example.lifecycle.model
 
-import android.util.Log
+import com.example.lifecycle.utils.SharedPrefModel
 import io.reactivex.Single
 import java.lang.Math.pow
 import kotlin.math.abs
@@ -20,16 +20,39 @@ data class GPRDataMatrix(var row: Int, var column : Int, var matrix : Array<Floa
     fun copy(gprDataMatrix: GPRDataMatrix){
         row = gprDataMatrix.row
         column = gprDataMatrix.column
-        matrix = gprDataMatrix.matrix
+        matrix = Array(row){it -> gprDataMatrix.matrix[it].copyOf()}
         max = gprDataMatrix.max
         min = gprDataMatrix.min
     }
 
-    fun printMatrix(){
-        matrix.forEach {
-
-            Log.d("xia","数组长度${it?.size}")
+    //时间零点校正
+    fun timeZero(){
+        var i = 1
+        while (true) {
+            if (i >= SharedPrefModel.samples) {
+                i = 0
+                break
+            } else if (matrix[0][i] < matrix[0][i-1] - 400.0) {
+                break
+            } else {
+                i++
+            }
         }
+        var i2 = i + 1
+        while (true) {
+            if (i2 >= SharedPrefModel.samples) {
+                break
+            } else if (matrix[0][i2] > matrix[0][i2-1]) {
+                i = i2
+                break
+            } else {
+                i2++
+            }
+        }
+        if (i > 2) {
+            i -= 2
+        }
+        val offset = i
     }
 
     //DC直流分量校正 垂直滤波
@@ -38,13 +61,13 @@ data class GPRDataMatrix(var row: Int, var column : Int, var matrix : Array<Floa
             val startJ = column*0.75.toInt()
             var average = 0f
             for( j in startJ until column){  //lie
-                average += matrix[i]!![j]
+                average += matrix[i][j]
             }
             for( j in 0 until column){  //lie
-                matrix[i]!![j] -= average
+                matrix[i][j] -= average
             }
         }
-        this
+        updateMM()
     }
 
     //截断过滤器
@@ -100,7 +123,7 @@ data class GPRDataMatrix(var row: Int, var column : Int, var matrix : Array<Floa
         min = Float.MAX_VALUE
         matrix.forEach{  //hang
             //存储最大最小值
-            val cMax = it!!.max()!!
+            val cMax = it.max()!!
             val cMin = it.min()!!
             if(max < cMax){
                 max = cMax
@@ -112,8 +135,8 @@ data class GPRDataMatrix(var row: Int, var column : Int, var matrix : Array<Floa
     }
 
     override fun toString(): String {
-        return "row = $row column = $column " +
-                "第一个元素: ${matrix[0]!![0]} 最后一个元素 :${matrix[row-1]!![column-1]} "
+        return "max = $max min = $min " +
+                "第一个元素: ${matrix[0][0]} 最后一个元素 :${matrix[row-1]!![column-1]} "
     }
 
     override fun equals(other: Any?): Boolean {

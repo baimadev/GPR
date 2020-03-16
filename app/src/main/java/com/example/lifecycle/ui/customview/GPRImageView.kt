@@ -11,6 +11,7 @@ import android.view.MotionEvent
 import android.view.ViewTreeObserver
 import android.widget.ImageView
 import com.example.lifecycle.R
+import com.example.lifecycle.model.GPRDataManager
 import com.example.lifecycle.model.GPRDataMatrix
 import com.example.lifecycle.utils.ColorUtils
 import com.example.lifecycle.utils.SharedPrefModel
@@ -27,7 +28,7 @@ class GPRImageView(context: Context, attrs: AttributeSet) : TouchImageView(conte
     var rectWidth = 1f
     var rectHeight = 2f
     //雷达数据 i j
-    var gprData: GPRDataMatrix? = null
+    var gprData: GPRDataMatrix = GPRDataMatrix.emptyMatrix()
     // gprBitmap距view四边距离
     val paddingLeft = 80f
     val paddingTop = 120f
@@ -53,7 +54,6 @@ class GPRImageView(context: Context, attrs: AttributeSet) : TouchImageView(conte
     var mainBitmap: Bitmap? = null
     lateinit var gprCanvas :Canvas
     lateinit var mainCanvas :Canvas
-    var mMatrix :Matrix
     lateinit var onDrawObserver :() -> Unit
 
     init {
@@ -68,7 +68,6 @@ class GPRImageView(context: Context, attrs: AttributeSet) : TouchImageView(conte
         midPaint.color = Color.RED
         midPaint.strokeWidth = 10f
         midPaint.style = Paint.Style.STROKE
-        mMatrix = Matrix()
         gprBitmapHeight = (rectHeight * SharedPrefModel.samples).toInt()
         gprBitmapWidth = (rectWidth * Constants.DefaultTraces).toInt()
         defaultX = paddingLeft+(gprBitmapWidth/2)
@@ -105,8 +104,6 @@ class GPRImageView(context: Context, attrs: AttributeSet) : TouchImageView(conte
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
         onDrawObserver.invoke()
-
-        Log.d("xia","gprview left $left top $top width $width height $height")
     }
 
 
@@ -179,7 +176,7 @@ class GPRImageView(context: Context, attrs: AttributeSet) : TouchImageView(conte
         rawGprBitmap = Bitmap.createBitmap(gprBitmapWidth, gprBitmapHeight, Bitmap.Config.ARGB_8888)
         mainBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         showGprBitmap = rawGprBitmap
-        gprData = data
+        gprData.copy(data)
         gprCanvas = Canvas(rawGprBitmap!!)
         mainCanvas = Canvas(mainBitmap!!)
         //先画线和背景 画在了maiBitmap上
@@ -193,11 +190,13 @@ class GPRImageView(context: Context, attrs: AttributeSet) : TouchImageView(conte
         mainBitmap
     }
 
-
+    //滤波数据更新
     fun updateData(data: GPRDataMatrix) = Single.fromCallable{
-        gprData = data
-//        drawBitmap()
-//        invalidate()
+        Log.d("xia",gprData.toString())
+        gprData.copy(data)
+        Log.d("xia",gprData.toString())
+        drawBitmap()
+        drawGprBitmapOnMain()
     }
 
     fun drawGprBitmapOnMain(){
@@ -208,15 +207,15 @@ class GPRImageView(context: Context, attrs: AttributeSet) : TouchImageView(conte
     fun drawBitmap(colorProgress:Int = SharedPrefModel.mHuePos){
         gprCanvas = Canvas(rawGprBitmap!!)
         val rect = RectF(0f, 0f, rectWidth, rectHeight)
-        for (i in 0 until gprData!!.row) {  //hang
+        for (i in 0 until gprData.row) {  //hang
             val left = i * rectWidth
             val right = left + rectWidth
-            val column = gprData!!.matrix[i]!!.size
+            val column = gprData.matrix[i].size
             for (j in 0 until column) {  //lie
                 val top = j * rectHeight
                 val bottom = top + rectHeight
-                val q = gprData!!.matrix[i]?.get(j)
-                gprPaint.color = ColorUtils.coloj(q!!,gprData!!,colorProgress)
+                val q = gprData.matrix[i].get(j)
+                gprPaint.color = ColorUtils.coloj(q,gprData,colorProgress)
                 rect.set(left, top, right, bottom)
                 gprCanvas.drawRect(rect, gprPaint)
             }
@@ -231,6 +230,9 @@ fun dataToFactor(data:Float,matrix:GPRDataMatrix,k:Float = 0.8f):Float{
     val max = colorFunction(matrix.max,k)
     val min = colorFunction(matrix.min,k)
     val num = colorFunction(data,k)
+    if((max - num)/(max - min)<0 || (max - num)/(max - min)>1){
+        Log.d("xia","${(max - num)/(max - min)} $data $max $min ${matrix.max} ${matrix.min}")
+    }
     return (max - num)/(max - min)
 }
 

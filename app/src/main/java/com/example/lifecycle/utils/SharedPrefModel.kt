@@ -27,6 +27,8 @@ object SharedPrefModel : KotprefModel() {
     var mSaturationPos by intPref(127)
     var mLumPos by intPref(127)
 
+    var mMidLinePos by intPref(Constants.DefaultTraces/2)
+
 
 
 }

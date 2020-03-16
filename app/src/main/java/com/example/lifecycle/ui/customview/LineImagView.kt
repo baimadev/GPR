@@ -1,5 +1,6 @@
 package com.example.lifecycle.ui.customview
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
@@ -9,12 +10,13 @@ import android.util.AttributeSet
 import android.util.Log
 import android.view.MotionEvent
 import android.widget.ImageView
+import androidx.appcompat.widget.AppCompatImageView
 import com.example.lifecycle.R
 import com.example.lifecycle.utils.SharedPrefModel
 import com.photo.utils.Constants
 
 
-class LineImagView ( context: Context,attributeSet: AttributeSet): ImageView(context,attributeSet) {
+class LineImagView ( context: Context,attributeSet: AttributeSet): AppCompatImageView(context,attributeSet) {
 
     private var lastX  = 0
     private var lastY  = 0
@@ -60,13 +62,13 @@ class LineImagView ( context: Context,attributeSet: AttributeSet): ImageView(con
         super.onLayout(true, 0, 0, width, height)
     }
 
+
+    @SuppressLint("ResourceAsColor")
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
 
         canvas!!.drawColor(R.color.lineColor)
         mMatrix.preTranslate(5f,0f)
-
-
     }
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
@@ -94,12 +96,13 @@ class LineImagView ( context: Context,attributeSet: AttributeSet): ImageView(con
                 }else if(trace<0){
                     trace = 0
                 }
+                SharedPrefModel.mMidLinePos = trace
                 onTranslate?.invoke(trace)
                 //重新设置初始化坐标
                 lastX = x
             }
         }
-        Log.d("xia","x $x")
+
         return true
     }
 

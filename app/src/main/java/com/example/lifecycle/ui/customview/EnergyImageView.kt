@@ -1,15 +1,11 @@
 package com.example.lifecycle.ui.customview
 
 import android.content.Context
-import android.content.SharedPreferences
 import android.graphics.Canvas
 import android.graphics.Color
-import android.graphics.Matrix
 import android.graphics.Paint
 import android.util.AttributeSet
-import android.util.Log
-import android.view.MotionEvent
-import android.widget.ImageView
+import androidx.appcompat.widget.AppCompatImageView
 import com.example.lifecycle.R
 import com.example.lifecycle.model.GPRDataManager
 import com.example.lifecycle.model.GPRDataMatrix
@@ -18,26 +14,33 @@ import com.photo.utils.Constants
 import kotlin.math.abs
 
 
-class EnergyImageView (context: Context, attributeSet: AttributeSet): ImageView(context,attributeSet) {
+class EnergyImageView (context: Context, attributeSet: AttributeSet): AppCompatImageView(context,attributeSet) {
 
 
     private val midLineWidth = 8
-    var gprData:GPRDataMatrix? = null
+    var gprData:GPRDataMatrix = GPRDataMatrix.emptyMatrix()
     val midPaint = Paint()
+    val linePaint = Paint()
     var defaultX = 0f
     var defaultY = 0f
-    var trace = Constants.DefaultTraces/2
+    var trace = SharedPrefModel.mMidLinePos
     var max = 0f
     var min = 0f
     lateinit var lastPos:Pair<Float,Float>
 
     init {
-        gprData = GPRDataManager.matrixT
+        gprData.copy(GPRDataManager.matrixF)
         midPaint.color = Color.RED
+        midPaint.strokeWidth = 5f
         midPaint.style = Paint.Style.FILL
-        max = gprData!!.max
-        max = gprData!!.min
+        linePaint.color = Color.BLACK
+        linePaint.style = Paint.Style.STROKE
+        linePaint.strokeWidth = 5f
+        linePaint.isAntiAlias = true
+        max = gprData.max
+        max = gprData.min
     }
+
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
         val widthMode=MeasureSpec.getMode(widthMeasureSpec)
@@ -68,31 +71,30 @@ class EnergyImageView (context: Context, attributeSet: AttributeSet): ImageView(
 
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
-        defaultX = (height/SharedPrefModel.samples).toFloat()
-        defaultY = width/abs(max - min)
+        defaultX = height/SharedPrefModel.samples.toFloat()
+        defaultY = (width-50)/abs(max - min)
         lastPos = width/2f to 0f
-        canvas!!.drawColor(R.color.colorPrimary)
+        canvas!!.drawColor(resources.getColor(R.color.colorPrimary))
         canvas.drawLine(width/2f-(midLineWidth/2f),0f,width/2f-(midLineWidth/2f),height.toFloat(),midPaint)
-
-        midPaint.color = R.color.back
-        midPaint.style = Paint.Style.STROKE
-        midPaint.strokeWidth = 5f
-        midPaint.isAntiAlias = true
-
-        gprData!!.matrix[trace].forEachIndexed { index, i ->
+        if (gprData.matrix.isEmpty()) return
+        gprData.matrix[trace].forEachIndexed { index, i ->
             val x = width/2f+ i*defaultY
             val y = (index+1) * defaultX
             val currentPos = x to y
-            canvas.drawLine(lastPos.first,lastPos.second,x,y,midPaint)
+            canvas.drawLine(lastPos.first,lastPos.second,x,y,linePaint)
             lastPos = currentPos
         }
 
     }
 
 
-    fun updateData(trace:Int = Constants.DefaultTraces/2,data:GPRDataMatrix = GPRDataManager.matrixA){
+    fun updateData(trace:Int = SharedPrefModel.mMidLinePos,data:GPRDataMatrix? = null){
         this.trace = trace
-        this.gprData = data
+        data?.let {
+            this.gprData.copy(data)
+            max = data.max
+            min = data.min
+        }
         invalidate()
     }
 
