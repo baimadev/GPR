@@ -4,7 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-
+        <import type="android.view.View"/>
+        <variable
+            name="data"
+            type="com.example.lifecycle.ui.fragment.TopViewModel" />
     </data>
 
 
@@ -99,7 +102,9 @@
                 app:layout_constraintTop_toTopOf="@+id/matrix" />
 
             <LinearLayout
+                android:id="@+id/layout_tool"
                 android:layout_marginTop="10dp"
+                android:visibility="@{data.layoutShowFlag? View.VISIBLE:View.GONE}"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
@@ -123,6 +128,8 @@
 
 
                 <TextView
+                    android:gravity="center"
+                    android:text="@{data.editNumber.toString()}"
                     android:textColor="@color/white"
                     android:layout_marginStart="10dp"
                     android:id="@+id/edit_number"

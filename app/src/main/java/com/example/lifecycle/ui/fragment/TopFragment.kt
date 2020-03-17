@@ -36,6 +36,8 @@ class TopFragment : BindingFragment<FragmentTopBinding, TopViewModel>(
 
     override fun initView() {
         gprImage = matrix
+        binding.lifecycleOwner = this
+        binding.data = viewModel
 
         RxView.clicks(binding.imageClose)
             .doOnNext {
@@ -49,6 +51,10 @@ class TopFragment : BindingFragment<FragmentTopBinding, TopViewModel>(
             energy_image.updateData(it)
         }
 
+        //
+        viewModel.layoutShowFlag.observe {
+
+        }
         //调色板
         RxView.clicks(binding.imageColor)
             .doOnNext {
@@ -78,13 +84,53 @@ class TopFragment : BindingFragment<FragmentTopBinding, TopViewModel>(
                 revoke()
             }
             .bindLife()
+
         //时间零点
         RxView.clicks(time_zero)
             .doOnNext {
-                GPRDataManager.matrixT.timeZero()
+                val offset =GPRDataManager.matrixT.timeZero()
+                viewModel.editNumber.value = offset
+                viewModel.layoutShowFlag.value =true
+                viewModel.editMode.value = EditMode.TimeZero
             }
             .bindLife()
 
+        //增加
+        RxView.clicks(image_enhance)
+            .doOnNext {
+                when(viewModel.editMode.value){
+                    EditMode.TimeZero -> {
+                        viewModel.editNumber.add(1f)
+                        timeZeroCorrect(viewModel.editNumber.value!!.toInt())
+
+                    }
+                    EditMode.DCFilter -> {
+
+                    }
+                    else -> {
+
+                    }
+                }
+            }
+            .bindLife()
+
+        //减少
+        RxView.clicks(image_decline)
+            .doOnNext {
+                when(viewModel.editMode.value){
+                    EditMode.TimeZero -> {
+                        viewModel.editNumber.decline(1f)
+                        timeZeroCorrect(viewModel.editNumber.value!!.toInt())
+                    }
+                    EditMode.DCFilter -> {
+
+                    }
+                    else -> {
+
+                    }
+                }
+            }
+            .bindLife()
 //        //截断滤波
 //        RxView.clicks(binding.imageTf)
 //            .doOnNext {
@@ -134,27 +180,12 @@ class TopFragment : BindingFragment<FragmentTopBinding, TopViewModel>(
 
     fun saveData(){
         GPRDataManager.matrixF.copy(GPRDataManager.matrixT)
-        gprImage.updateData(GPRDataManager.matrixF)
-            .switchThread()
-            .netProgressDialog(context!!)
-            .doOnSuccess {
-                energy_image.updateData(data = GPRDataManager.matrixF)
-                Log.d("xia","save")
-            }
-            .bindLife()
-
+        updateView(GPRDataManager.matrixF)
     }
 
     fun revoke() {
         GPRDataManager.run {
-            gprImage.updateData(matrixF)
-                .switchThread()
-                .netProgressDialog(context!!)
-                .doOnSuccess {
-                    matrixT.copy(matrixF)
-                    energy_image.updateData(data = matrixF)
-                }
-                .bindLife()
+            updateView(matrixF) {matrixT.copy(matrixF)}
         }
     }
 
@@ -163,13 +194,7 @@ class TopFragment : BindingFragment<FragmentTopBinding, TopViewModel>(
             .switchThread()
             .netProgressDialog(context!!)
             .doOnSuccess {
-                gprImage.updateData(GPRDataManager.matrixT)
-                    .switchThread()
-                    .netProgressDialog(context!!)
-                    .doOnSuccess {
-                        energy_image.updateData(data = GPRDataManager.matrixT)
-                    }
-                    .bindLife()
+                updateView(GPRDataManager.matrixT)
             }
             .bindLife()
 
@@ -191,5 +216,28 @@ class TopFragment : BindingFragment<FragmentTopBinding, TopViewModel>(
                     })
             }
         }
+    }
+
+    //每一次操作 应该都是上一次数据
+    fun timeZeroCorrect(offset:Int){
+        GPRDataManager.matrixT.copy(GPRDataManager.matrixF)
+        Single.just(GPRDataManager.matrixT.timeZeroCorrect(offset))
+            .switchThread()
+            .netProgressDialog(context!!)
+            .doOnSuccess {
+                updateView(GPRDataManager.matrixT)
+            }
+            .bindLife()
+    }
+
+    fun updateView(matrix:GPRDataMatrix,operation:(()->Unit) ? = null){
+        gprImage.updateData(matrix)
+            .switchThread()
+            .netProgressDialog(context!!)
+            .doOnSuccess {
+                energy_image.updateData(data = matrix)
+                operation?.invoke()
+            }
+            .bindLife()
     }
 }

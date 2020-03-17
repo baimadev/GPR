@@ -1,6 +1,7 @@
 package com.example.lifecycle.model
 
 import com.example.lifecycle.utils.SharedPrefModel
+import com.photo.utils.Constants
 import io.reactivex.Single
 import java.lang.Math.pow
 import kotlin.math.abs
@@ -25,8 +26,8 @@ data class GPRDataMatrix(var row: Int, var column : Int, var matrix : Array<Floa
         min = gprDataMatrix.min
     }
 
-    //时间零点校正
-    fun timeZero(){
+    //时间零点计算
+    fun timeZero():Float{
         var i = 1
         while (true) {
             if (i >= SharedPrefModel.samples) {
@@ -52,7 +53,22 @@ data class GPRDataMatrix(var row: Int, var column : Int, var matrix : Array<Floa
         if (i > 2) {
             i -= 2
         }
-        val offset = i
+        return i.toFloat()
+    }
+
+    /**
+     * 时间零点校正
+     */
+    fun timeZeroCorrect(offset:Int){
+        val newMatrix = Array(row){ FloatArray(column-offset) }
+        for(i in 0 until row){
+            for(j in offset until column){
+                newMatrix[i][j-offset] = matrix[i][j]
+            }
+        }
+        matrix = newMatrix
+        column -= offset
+        updateMM()
     }
 
     //DC直流分量校正 垂直滤波
@@ -135,8 +151,8 @@ data class GPRDataMatrix(var row: Int, var column : Int, var matrix : Array<Floa
     }
 
     override fun toString(): String {
-        return "max = $max min = $min " +
-                "第一个元素: ${matrix[0][0]} 最后一个元素 :${matrix[row-1]!![column-1]} "
+        return "max = $max min = $min row $row  col $column"
+                "第一个元素: ${matrix[0][0]} 最后一个元素 :${matrix[row-1]!![column-1]}  "
     }
 
     override fun equals(other: Any?): Boolean {
