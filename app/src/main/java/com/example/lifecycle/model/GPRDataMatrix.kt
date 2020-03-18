@@ -1,11 +1,11 @@
 package com.example.lifecycle.model
 
+import android.util.Log
 import com.example.lifecycle.utils.SharedPrefModel
-import com.photo.utils.Constants
 import io.reactivex.Single
-import java.lang.Math.pow
 import kotlin.math.abs
 import kotlin.math.atan
+import kotlin.math.pow
 
 /**
  * 按行存储
@@ -73,28 +73,81 @@ data class GPRDataMatrix(var row: Int, var column : Int, var matrix : Array<Floa
 
     //DC直流分量校正 垂直滤波
     fun DCFiliter()= Single.fromCallable {
+        var num = 0
+        var average = 0f
+        val startJ = column*0.5.toInt()
         for( i in 0 until row){  //hang
-            val startJ = column*0.75.toInt()
-            var average = 0f
             for( j in startJ until column){  //lie
                 average += matrix[i][j]
+                num++
             }
+        }
+        average /= num
+
+        for( i in 0 until row){  //hang
             for( j in 0 until column){  //lie
                 matrix[i][j] -= average
             }
         }
-        updateMM()
+        if (max > -min) {
+            min = -max
+        }
+        if (max < -min) {
+            max = -min
+        }
+
     }
 
-    //截断过滤器
+    fun DCFiliter(trunca:Float) {
+
+        val d= (max - min) / 256f / trunca
+
+        val d4 = 0.9f
+  
+        if (max > Math.abs(min)) {
+            min = -max
+        } else {
+            max = -min
+        }
+        var i3 = 0
+        while (i3 < row) {
+            var i4 = 0
+            while (i4 < column) {
+                if (trunca == d4) {
+                    matrix[i3][i4] = abs(matrix[i3][i4]) + min
+                }
+
+                matrix[i3][i4] = matrix[i3][i4]  * trunca
+
+                if (matrix[i3][i4] > max) {
+                    matrix[i3][i4] = max*trunca
+                }
+                if (matrix[i3][i4] < min) {
+                    matrix[i3][i4] = min*trunca
+                }
+                i4++
+            }
+            i3++
+        }
+        max *= trunca
+        min *= trunca
+    }
+
+
+    //todo 截断过滤器
     fun TruncationFiliter(truncation : Float)= Single.fromCallable {
-        for( i in 0 until row){  //hang
+        Log.d("xia",toString())
+            for( i in 0 until row){  //hang
             for( j in 0 until column){  //lie
-                matrix[i]!![j] *= truncation
+                if(matrix[i][j] in max-1000 .. max){
+                    matrix[i][j] *= truncation
+                }
+                if(matrix[i][j] in min .. min+1000){
+                    matrix[i][j] *= truncation
+                }
             }
         }
-        //updateMM()
-        this
+        updateMM()
     }
 
     //电位增益滤波器
@@ -102,26 +155,28 @@ data class GPRDataMatrix(var row: Int, var column : Int, var matrix : Array<Floa
 
         for( i in 0 until row){  //hang
             for( j in 0 until column){  //lie
-                val number = matrix[i]!![j]
-                matrix[i]!![j] = (sgn(number) * pow(abs(number).toDouble(), truncation.toDouble())).toFloat()
+                val number = matrix[i][j]
+                matrix[i][j] = (sgn(number) * (abs(number).toDouble().pow(truncation.toDouble()))).toFloat()
             }
         }
         updateMM()
-        this
     }
 
     //垂直推导滤波 需要知道纵向函数表达式
     fun VerticalDerivationFilter(k : Int) = Single.fromCallable {
-
-
+        
         for( i in 0 until row){  //hang
-            for( j in 0 until column){  //lie
-                val d = (matrix[i]!![k*j]-matrix[i]!![k*(j-1)])/k
-                matrix[i]!![j] = atan(d)
+            for( j in 1 until column){  //lie
+                if ( k != 0) {
+                   matrix[i][j] = matrix[i][j]-matrix[i][j-1]
+                }
+                val d3 =  matrix[i][j] / max
+                matrix[i][j] = atan(d3 * k)
+
             }
+            matrix[i][0] = 0f
         }
         updateMM()
-        this
     }
 
 
@@ -148,11 +203,11 @@ data class GPRDataMatrix(var row: Int, var column : Int, var matrix : Array<Floa
                 min = cMin
             }
         }
+
     }
 
     override fun toString(): String {
-        return "max = $max min = $min row $row  col $column"
-                "第一个元素: ${matrix[0][0]} 最后一个元素 :${matrix[row-1]!![column-1]}  "
+        return "max = $max min = $min row $row  col $column 第一个元素: ${matrix[0][0]} 最后一个元素 :${matrix[row-1]!![column-1]}  "
     }
 
     override fun equals(other: Any?): Boolean {

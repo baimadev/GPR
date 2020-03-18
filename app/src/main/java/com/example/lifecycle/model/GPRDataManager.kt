@@ -13,7 +13,7 @@ object GPRDataManager {
     }
 
     override fun toString ():String{
-        return "A ${matrixA.toString()} F ${matrixF.toString()} T $matrixT"
+        return " \n \n A ${matrixA.toString()}\n F ${matrixF.toString()}\n T $matrixT"
     }
 
 }

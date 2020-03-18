@@ -5,6 +5,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.util.AttributeSet
+import android.util.Log
 import androidx.appcompat.widget.AppCompatImageView
 import com.example.lifecycle.R
 import com.example.lifecycle.model.GPRDataManager
@@ -16,7 +17,6 @@ import kotlin.math.abs
 
 class EnergyImageView (context: Context, attributeSet: AttributeSet): AppCompatImageView(context,attributeSet) {
 
-
     private val midLineWidth = 8
     var gprData:GPRDataMatrix = GPRDataMatrix.emptyMatrix()
     val midPaint = Paint()
@@ -24,12 +24,10 @@ class EnergyImageView (context: Context, attributeSet: AttributeSet): AppCompatI
     var defaultX = 0f
     var defaultY = 0f
     var trace = SharedPrefModel.mMidLinePos
-    var max = 0f
-    var min = 0f
     lateinit var lastPos:Pair<Float,Float>
 
     init {
-        gprData.copy(GPRDataManager.matrixF)
+        gprData.copy(GPRDataManager.matrixT)
         midPaint.color = Color.RED
         midPaint.strokeWidth = 5f
         midPaint.style = Paint.Style.FILL
@@ -37,8 +35,6 @@ class EnergyImageView (context: Context, attributeSet: AttributeSet): AppCompatI
         linePaint.style = Paint.Style.STROKE
         linePaint.strokeWidth = 5f
         linePaint.isAntiAlias = true
-        max = gprData.max
-        max = gprData.min
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -71,8 +67,8 @@ class EnergyImageView (context: Context, attributeSet: AttributeSet): AppCompatI
 
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
-        defaultX = height/SharedPrefModel.samples.toFloat()
-        defaultY = (width-50)/abs(max - min)
+        defaultX = height/gprData.column.toFloat()
+        defaultY = (width-50)/abs(gprData.max - gprData.min)
         lastPos = width/2f to 0f
         canvas!!.drawColor(resources.getColor(R.color.colorPrimary))
         canvas.drawLine(width/2f-(midLineWidth/2f),0f,width/2f-(midLineWidth/2f),height.toFloat(),midPaint)
@@ -87,13 +83,10 @@ class EnergyImageView (context: Context, attributeSet: AttributeSet): AppCompatI
 
     }
 
-
     fun updateData(trace:Int = SharedPrefModel.mMidLinePos,data:GPRDataMatrix? = null){
         this.trace = trace
         data?.let {
             this.gprData.copy(data)
-            max = data.max
-            min = data.min
         }
         invalidate()
     }

@@ -37,21 +37,17 @@
                 android:layout_gravity="center"
                 android:src="@drawable/ic_color_lens_black_24dp" />
 
-            <ImageView
+            <TextView
+                android:padding="5dp"
+                android:layout_marginStart="10dp"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:textColor="@color/white"
+                android:text="DC"
                 android:id="@+id/image_crop"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginLeft="@dimen/dp_10"
-                android:src="@drawable/ic_crop_black_24dp" />
-
-            <ImageView
-                android:id="@+id/image_tf"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginLeft="@dimen/dp_10"
-                android:src="@drawable/ic_crop_black_24dp" />
+                android:layout_height="match_parent"/>
 
             <TextView
                 android:padding="5dp"
@@ -62,6 +58,51 @@
                 android:textColor="@color/white"
                 android:text="时零"
                 android:id="@+id/time_zero"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"/>
+
+            <TextView
+                android:padding="5dp"
+                android:layout_marginStart="10dp"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:textColor="@color/white"
+                android:text="截断"
+                android:id="@+id/image_tf"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"/>
+            <TextView
+                android:padding="5dp"
+                android:layout_marginStart="10dp"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:textColor="@color/white"
+                android:text="电位"
+                android:id="@+id/image_potential"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"/>
+            <TextView
+                android:padding="5dp"
+                android:layout_marginStart="10dp"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:textColor="@color/white"
+                android:text="垂直推导"
+                android:id="@+id/image_derivation"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"/>
+            <TextView
+                android:padding="5dp"
+                android:layout_marginStart="10dp"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:textColor="@color/white"
+                android:text="平滑"
+                android:id="@+id/image_background"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"/>
         </LinearLayout>
@@ -113,6 +154,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/matrix">
 
                 <ImageView
+                    android:visibility="@{data.editShowFlag? View.VISIBLE:View.GONE}"
                     android:layout_marginStart="10dp"
                     android:id="@+id/image_decline"
                     android:layout_width="wrap_content"
@@ -120,14 +162,15 @@
                     android:src="@drawable/ic_fast_rewind_black_24dp" />
 
                 <ImageView
+                    android:visibility="@{data.editShowFlag? View.VISIBLE:View.GONE}"
                     android:layout_marginStart="10dp"
                     android:id="@+id/image_enhance"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:src="@drawable/ic_fast_forward_black_24dp" />
 
-
                 <TextView
+                    android:visibility="@{data.editShowFlag? View.VISIBLE:View.GONE}"
                     android:gravity="center"
                     android:text="@{data.editNumber.toString()}"
                     android:textColor="@color/white"
