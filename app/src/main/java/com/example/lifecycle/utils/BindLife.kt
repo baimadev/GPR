@@ -1,5 +1,6 @@
 package com.photo.utils
 
+import android.util.Log
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Observable
@@ -13,9 +14,9 @@ interface BindLife {
 
     fun Disposable.bindLife() = addDisposable(this)
 
-    fun Single<*>.bindLife() = subscribe({  }, { Timber.e(it, "Single has error") }).bindLife()
+    fun Single<*>.bindLife() = subscribe({  }, { Log.e("xia", "${it.message} Single has error") }).bindLife()
 
-    fun Observable<*>.bindLife() = subscribe({  }, { Timber.e(it, "Observable has error") }).bindLife()
+    fun Observable<*>.bindLife() = subscribe({  }, { Log.e("xia", "${it.message}Observable has error") }).bindLife()
 
     fun Completable.bindLife() = subscribe({  }, { Timber.e(it, "Completable has error") }).bindLife()
 

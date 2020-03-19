@@ -105,6 +105,18 @@
                 android:id="@+id/image_background"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"/>
+
+            <TextView
+                android:padding="5dp"
+                android:layout_marginStart="10dp"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:textColor="@color/white"
+                android:text="频率域"
+                android:id="@+id/image_frequency"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"/>
         </LinearLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout

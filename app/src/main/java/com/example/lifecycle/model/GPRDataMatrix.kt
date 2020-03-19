@@ -162,7 +162,7 @@ data class GPRDataMatrix(var row: Int, var column : Int, var matrix : Array<Floa
         updateMM()
     }
 
-    //垂直推导滤波 需要知道纵向函数表达式
+    //垂直推导滤波
     fun VerticalDerivationFilter(k : Int) = Single.fromCallable {
         
         for( i in 0 until row){  //hang
@@ -179,6 +179,52 @@ data class GPRDataMatrix(var row: Int, var column : Int, var matrix : Array<Floa
         updateMM()
     }
 
+    //平滑  计算垂直分量 移动平均值
+    fun smoothLine(suavitoh:Float) =Single.fromCallable{
+        var i: Int
+        val i2: Int = row
+        val i3: Int = column
+        val f: Float =  50.0f
+        val dArr =FloatArray(i2)
+        val dArr2 = FloatArray(i2)
+        var i4 = 0
+        while (i4 < i2) {
+            for (i5 in 0 until i3) {
+                dArr[i5] = matrix[i4][i5]
+            }
+            var i6 = 0
+            while (true) {
+                i = i4
+                if (i6.toFloat() >= suavitoh) {
+                    break
+                }
+                dArr2[0] = dArr[0]
+                val i7 = i2 - 1
+                dArr2[i7] = dArr[i7]
+                var i8 = 1
+                while (i8 < i7) {
+                    val i9 = i8 + 1
+                    dArr2[i8] = (dArr[i9] + dArr[i8 - 1] + dArr[i8] * 2f) / 4f
+                    i8 = i9
+                }
+                for (i10 in 0 until i3) {
+                    dArr[i10] = dArr2[i10]
+                }
+                i6++
+                i4 = i
+            }
+            for (i11 in 0 until i3) {
+                matrix[i][i11] = dArr[i11]
+            }
+            i4 = i + 1
+        }
+        updateMM()
+    }
+
+    //傅里叶
+    fun frequency(){
+
+    }
 
     fun sgn(number:Float):Int{
         return when {

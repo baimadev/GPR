@@ -113,6 +113,28 @@ class TopFragment : BindingFragment<FragmentTopBinding, TopViewModel>(
                 viewModel.editMode.value = EditMode.Derivation
             }
             .bindLife()
+        //平滑
+        RxView.clicks(binding.imageBackground)
+            .doOnNext {
+                viewModel.editNumber.value = 1f
+                viewModel.layoutShowFlag.value =true
+                viewModel.editShowFlag.value =true
+                viewModel.editMode.value = EditMode.Background
+
+            }
+            .bindLife()
+
+        //频率域
+        RxView.clicks(binding.imageFrequency)
+            .doOnNext {
+                viewModel.editNumber.value = 1f
+                viewModel.layoutShowFlag.value =true
+                viewModel.editShowFlag.value =true
+                viewModel.editMode.value = EditMode.Frequency
+                //todo
+            }
+            .bindLife()
+
 
 
         //增加
@@ -140,7 +162,6 @@ class TopFragment : BindingFragment<FragmentTopBinding, TopViewModel>(
                             filter { matrix ->
                                 matrix.TruncationFiliter(it.value!!)
                             }
-                            Log.d("xia",GPRDataManager.matrixT.toString())
                         }
                     }
                     EditMode.Potential ->{
@@ -158,6 +179,15 @@ class TopFragment : BindingFragment<FragmentTopBinding, TopViewModel>(
                                 matrix.VerticalDerivationFilter(it.value!!.toInt())
                             }
                         }
+                    }
+                    EditMode.Background -> {
+                        viewModel.editNumber.let {
+                            it.value = String.format("%.2f",it.value!! *2f).toFloat()
+                            filter { matrix ->
+                                matrix.smoothLine(it.value!!)
+                            }
+                        }
+
                     }
                     else -> {
 
@@ -217,6 +247,19 @@ class TopFragment : BindingFragment<FragmentTopBinding, TopViewModel>(
                                 matrix.VerticalDerivationFilter(it.value!!.toInt())
                             }
                         }
+                    }
+
+                    EditMode.Background -> {
+                        viewModel.editNumber.let {
+                            it.value = String.format("%.2f",it.value!! *0.5f).toFloat()
+                            if(it.value!!<1f){
+                                it.value = 1f
+                            }
+                            filter { matrix ->
+                                matrix.smoothLine(it.value!!)
+                            }
+                        }
+
                     }
                     else -> {
 

@@ -10,10 +10,4 @@ object Constants {
     const val RAD= "/storage/emulated/0/Android/data/com.tencent.mobileqq/Tencent/QQfile_recv/YHG10002.rad"
     const val MAIN_FRAGMENT_STACK= "multi return stack"
     const val DefaultTraces= 1500
-
-
-    // API Header
-    const val X_CIC_Auth_Id = "R0OsBCIX3ZDFnrrImWsi3A=="
-    const val X_CIC_Auth_Password = "9sJCuooTUNYZ57KslHJgCWG80z6g3+uiDJwJH3gcBDI="
-
 }

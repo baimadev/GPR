@@ -7,6 +7,6 @@ enum class EditMode {
     Truncation,
     Potential,
     Derivation,
-    Background
-
+    Background,
+    Frequency
 }
