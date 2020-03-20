@@ -8,8 +8,8 @@ object SharedPrefModel : KotprefModel() {
     override val kotprefName: String = Constants.SHARED_PREF_FILE_NAME
 
     var isFistTime by booleanPref(true)
-    var mSaturation by floatPref(1f)
-    var mLum by floatPref(1f)
+    var mSaturation by floatPref(255f)
+    var mLum by floatPref(255f)
     var mTruncation by intPref(50)
 
     var samples by intPref(0)

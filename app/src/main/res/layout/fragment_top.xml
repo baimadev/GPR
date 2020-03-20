@@ -4,7 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-        <import type="android.view.View"/>
+
+        <import type="android.view.View" />
+
         <variable
             name="data"
             type="com.example.lifecycle.ui.fragment.TopViewModel" />
@@ -12,9 +14,9 @@
 
 
     <LinearLayout
-        android:background="@color/green"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@color/green"
         android:orientation="vertical">
 
         <LinearLayout
@@ -35,88 +37,99 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
+                android:background="?android:attr/selectableItemBackground"
                 android:src="@drawable/ic_color_lens_black_24dp" />
 
             <TextView
-                android:padding="5dp"
-                android:layout_marginStart="10dp"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:gravity="center"
-                android:textColor="@color/white"
-                android:text="DC"
                 android:id="@+id/image_crop"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"/>
+                android:layout_height="match_parent"
+                android:layout_marginStart="10dp"
+                android:background="?android:attr/selectableItemBackground"
+                android:gravity="center"
+                android:padding="5dp"
+                android:text="DC"
+                android:textColor="@color/white"
+                android:textSize="20sp"
+                android:textStyle="bold" />
 
             <TextView
-                android:padding="5dp"
-                android:layout_marginStart="10dp"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:gravity="center"
-                android:textColor="@color/white"
-                android:text="时零"
                 android:id="@+id/time_zero"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"/>
+                android:layout_height="match_parent"
+                android:layout_marginStart="10dp"
+                android:background="?android:attr/selectableItemBackground"
+                android:gravity="center"
+                android:padding="5dp"
+                android:text="时零"
+                android:textColor="@color/white"
+                android:textSize="20sp"
+                android:textStyle="bold" />
 
             <TextView
-                android:padding="5dp"
-                android:layout_marginStart="10dp"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:gravity="center"
-                android:textColor="@color/white"
-                android:text="截断"
                 android:id="@+id/image_tf"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"/>
-            <TextView
-                android:padding="5dp"
+                android:layout_height="match_parent"
                 android:layout_marginStart="10dp"
-                android:textSize="20sp"
-                android:textStyle="bold"
+                android:background="?android:attr/selectableItemBackground"
                 android:gravity="center"
-                android:textColor="@color/white"
-                android:text="电位"
-                android:id="@+id/image_potential"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"/>
-            <TextView
                 android:padding="5dp"
-                android:layout_marginStart="10dp"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:gravity="center"
+                android:text="截断"
                 android:textColor="@color/white"
-                android:text="垂直推导"
-                android:id="@+id/image_derivation"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"/>
-            <TextView
-                android:padding="5dp"
-                android:layout_marginStart="10dp"
                 android:textSize="20sp"
-                android:textStyle="bold"
-                android:gravity="center"
-                android:textColor="@color/white"
-                android:text="平滑"
-                android:id="@+id/image_background"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"/>
+                android:textStyle="bold" />
 
             <TextView
-                android:padding="5dp"
+                android:id="@+id/image_potential"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_marginStart="10dp"
-                android:textSize="20sp"
-                android:textStyle="bold"
+                android:background="?android:attr/selectableItemBackground"
                 android:gravity="center"
+                android:padding="5dp"
+                android:text="电位"
                 android:textColor="@color/white"
-                android:text="频率域"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/image_derivation"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginStart="10dp"
+                android:background="?android:attr/selectableItemBackground"
+                android:gravity="center"
+                android:padding="5dp"
+                android:text="垂直推导"
+                android:textColor="@color/white"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/image_background"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginStart="10dp"
+                android:background="?android:attr/selectableItemBackground"
+                android:gravity="center"
+                android:padding="5dp"
+                android:text="平滑"
+                android:textColor="@color/white"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <TextView
                 android:id="@+id/image_frequency"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"/>
+                android:layout_height="match_parent"
+                android:layout_marginStart="10dp"
+                android:background="?android:attr/selectableItemBackground"
+                android:gravity="center"
+                android:padding="5dp"
+                android:text="频率域"
+                android:textColor="@color/white"
+                android:textSize="20sp"
+                android:textStyle="bold" />
         </LinearLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -149,6 +162,7 @@
                 android:layout_height="match_parent"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="60dp"
+                android:background="@color/background"
                 app:layout_constraintBottom_toBottomOf="@id/matrix"
                 app:layout_constraintLeft_toRightOf="@+id/matrix"
                 app:layout_constraintRight_toRightOf="parent"
@@ -156,58 +170,66 @@
 
             <LinearLayout
                 android:id="@+id/layout_tool"
-                android:layout_marginTop="10dp"
-                android:visibility="@{data.layoutShowFlag? View.VISIBLE:View.GONE}"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
                 android:orientation="horizontal"
+                android:visibility="@{data.layoutShowFlag? View.VISIBLE:View.GONE}"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/matrix">
 
                 <ImageView
-                    android:visibility="@{data.editShowFlag? View.VISIBLE:View.GONE}"
-                    android:layout_marginStart="10dp"
                     android:id="@+id/image_decline"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/ic_fast_rewind_black_24dp" />
+                    android:layout_marginStart="10dp"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:padding="5dp"
+                    android:src="@drawable/ic_fast_rewind_black_24dp"
+                    android:visibility="@{data.editShowFlag? View.VISIBLE:View.GONE}" />
 
                 <ImageView
-                    android:visibility="@{data.editShowFlag? View.VISIBLE:View.GONE}"
-                    android:layout_marginStart="10dp"
                     android:id="@+id/image_enhance"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/ic_fast_forward_black_24dp" />
+                    android:layout_marginStart="10dp"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:padding="5dp"
+                    android:src="@drawable/ic_fast_forward_black_24dp"
+                    android:visibility="@{data.editShowFlag? View.VISIBLE:View.GONE}" />
 
                 <TextView
-                    android:visibility="@{data.editShowFlag? View.VISIBLE:View.GONE}"
-                    android:gravity="center"
-                    android:text="@{data.editNumber.toString()}"
-                    android:textColor="@color/white"
-                    android:layout_marginStart="10dp"
                     android:id="@+id/edit_number"
                     android:layout_width="40dp"
-                    android:layout_height="match_parent" />
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="10dp"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:gravity="center"
+                    android:padding="5dp"
+                    android:text="@{data.editNumber.toString()}"
+                    android:textColor="@color/white"
+                    android:visibility="@{data.editShowFlag? View.VISIBLE:View.GONE}" />
 
                 <ImageView
-                    android:layout_marginStart="10dp"
                     android:id="@+id/image_save"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:padding="5dp"
                     android:src="@drawable/ic_build_black_24dp" />
 
-
                 <ImageView
-                    android:layout_marginStart="10dp"
                     android:id="@+id/image_revoke"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:padding="5dp"
                     android:src="@drawable/ic_history_black_24dp" />
 
             </LinearLayout>
-
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </LinearLayout>

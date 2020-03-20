@@ -7,10 +7,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.example.lifecycle.*
-import com.example.lifecycle.utils.hideSoftKeyBoard
 import com.github.salomonbrys.kodein.KodeinInjector
 import com.github.salomonbrys.kodein.android.SupportFragmentInjector
-import com.photo.*
 import com.photo.utils.BindLife
 import indi.yume.tools.fragmentmanager.BaseManagerFragment
 import io.reactivex.Observable
@@ -110,10 +108,6 @@ abstract class BaseFragment
         destroyInjector()
     }
 
-    override fun finish() {
-        activity?.let { hideSoftKeyBoard(it) }
-        super.finish()
-    }
 
 //    fun lazyContext(): Eval<Context?> = Eval.always { context }
 

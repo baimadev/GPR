@@ -17,6 +17,7 @@ import kotlin.math.abs
 
 class EnergyImageView (context: Context, attributeSet: AttributeSet): AppCompatImageView(context,attributeSet) {
 
+    private val textPaint = Paint()
     private val midLineWidth = 8
     var gprData:GPRDataMatrix = GPRDataMatrix.emptyMatrix()
     val midPaint = Paint()
@@ -35,6 +36,10 @@ class EnergyImageView (context: Context, attributeSet: AttributeSet): AppCompatI
         linePaint.style = Paint.Style.STROKE
         linePaint.strokeWidth = 5f
         linePaint.isAntiAlias = true
+        textPaint.textSize = 40f
+        textPaint.color = Color.BLACK
+        textPaint.style = Paint.Style.FILL
+        textPaint.strokeWidth = 10f
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -70,7 +75,7 @@ class EnergyImageView (context: Context, attributeSet: AttributeSet): AppCompatI
         defaultX = height/gprData.column.toFloat()
         defaultY = (width-50)/abs(gprData.max - gprData.min)
         lastPos = width/2f to 0f
-        canvas!!.drawColor(resources.getColor(R.color.colorPrimary))
+        canvas!!.drawColor(resources.getColor(R.color.background))
         canvas.drawLine(width/2f-(midLineWidth/2f),0f,width/2f-(midLineWidth/2f),height.toFloat(),midPaint)
         if (gprData.matrix.isEmpty()) return
         gprData.matrix[trace].forEachIndexed { index, i ->
@@ -80,6 +85,8 @@ class EnergyImageView (context: Context, attributeSet: AttributeSet): AppCompatI
             canvas.drawLine(lastPos.first,lastPos.second,x,y,linePaint)
             lastPos = currentPos
         }
+        canvas.drawText("Trace:$trace",20f,height-20f,textPaint)
+        canvas.drawText("Distance:${String.format("%.1f",(trace*SharedPrefModel.distanceInterval))}",20f,height-60f,textPaint)
 
     }
 

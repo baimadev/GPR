@@ -1,10 +1,12 @@
 package com.example.lifecycle.model
 
 import android.util.Log
+import com.example.lifecycle.utils.RealDoubleFFT
 import com.example.lifecycle.utils.SharedPrefModel
 import io.reactivex.Single
 import kotlin.math.abs
 import kotlin.math.atan
+import kotlin.math.ln
 import kotlin.math.pow
 
 /**
@@ -100,10 +102,7 @@ data class GPRDataMatrix(var row: Int, var column : Int, var matrix : Array<Floa
 
     fun DCFiliter(trunca:Float) {
 
-        val d= (max - min) / 256f / trunca
-
         val d4 = 0.9f
-  
         if (max > Math.abs(min)) {
             min = -max
         } else {
@@ -116,7 +115,6 @@ data class GPRDataMatrix(var row: Int, var column : Int, var matrix : Array<Floa
                 if (trunca == d4) {
                     matrix[i3][i4] = abs(matrix[i3][i4]) + min
                 }
-
                 matrix[i3][i4] = matrix[i3][i4]  * trunca
 
                 if (matrix[i3][i4] > max) {
@@ -136,7 +134,6 @@ data class GPRDataMatrix(var row: Int, var column : Int, var matrix : Array<Floa
 
     //todo 截断过滤器
     fun TruncationFiliter(truncation : Float)= Single.fromCallable {
-        Log.d("xia",toString())
             for( i in 0 until row){  //hang
             for( j in 0 until column){  //lie
                 if(matrix[i][j] in max-1000 .. max){
@@ -222,8 +219,69 @@ data class GPRDataMatrix(var row: Int, var column : Int, var matrix : Array<Floa
     }
 
     //傅里叶
-    fun frequency(){
+    fun frequency(fouri : Int = 10)=Single.fromCallable{
 
+        var realDoubleFFT: RealDoubleFFT
+        var i: Int
+        val i3: Int = row
+        val i4: Int = column
+        var i5 = i4 - fouri
+        var realDoubleFFT2 = RealDoubleFFT(fouri)
+        val dArr = DoubleArray(fouri)
+        val dArr2 = DoubleArray(i4)
+        val d = i5.toFloat()
+        val d2 = i4.toFloat()
+        val d3 = d * 1f / d2
+        var i6 = 0
+        var d4 = 0.001
+        while (i6 < i3) {
+            var d5 = d4
+            var i7 = 0
+            while (i7 < i5) {
+                for (i8 in 0 until fouri) {
+                    dArr[i8] = matrix[i6][i7 + i8].toDouble()
+                }
+                realDoubleFFT2.mo6045ft(dArr)
+                var i9 = 1
+                var d6 = 0.0
+                var d7 = 0.0
+                while (i9 < fouri) {
+                    if (abs(dArr[i9]) > d6) {
+                        d6 = dArr[i9]
+                        i = i5
+                        realDoubleFFT = realDoubleFFT2
+                        d7 = ln(i9.toDouble())
+                    } else {
+                        i = i5
+                        realDoubleFFT = realDoubleFFT2
+                    }
+                    i9++
+                    i5 = i
+                    realDoubleFFT2 = realDoubleFFT
+                }
+                val i10 = i5
+                val realDoubleFFT3: RealDoubleFFT = realDoubleFFT2
+                dArr2[i7] = d7
+                if (d5 < d7) {
+                    d5 = d7
+                }
+                i7++
+                i5 = i10
+                realDoubleFFT2 = realDoubleFFT3
+            }
+            val i11 = i5
+            val realDoubleFFT4: RealDoubleFFT = realDoubleFFT2
+            for (i12 in 0 until i4) {
+                val d8 = i12.toDouble()
+                java.lang.Double.isNaN(d8)
+                matrix[i6][i12] = dArr2[(d8 * d3).toInt()].toFloat()
+            }
+            i6++
+            d4 = d5
+            i5 = i11
+            realDoubleFFT2 = realDoubleFFT4
+        }
+        updateMM()
     }
 
     fun sgn(number:Float):Int{
@@ -253,7 +311,7 @@ data class GPRDataMatrix(var row: Int, var column : Int, var matrix : Array<Floa
     }
 
     override fun toString(): String {
-        return "max = $max min = $min row $row  col $column 第一个元素: ${matrix[0][0]} 最后一个元素 :${matrix[row-1]!![column-1]}  "
+        return "max = $max min = $min row $row  col $column 第一个元素: ${matrix[0][0]} 最后一个元素 :${matrix[row-1][column-1]}  "
     }
 
     override fun equals(other: Any?): Boolean {

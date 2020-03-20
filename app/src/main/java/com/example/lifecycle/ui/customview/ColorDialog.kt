@@ -49,7 +49,7 @@ class ColorDialog (mContext: Context, val layoutId :Int,val gprImageView: GPRIma
                 override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                     SharedPrefModel.mSaturation =progress * 1.0f/ MAX_VALUE
                     SharedPrefModel.mSaturationPos =progress
-                    setImageview()
+                    setRawGprBitmapHL()
                 }
                 override fun onStartTrackingTouch(seekBar: SeekBar?) {
                 }
@@ -65,7 +65,7 @@ class ColorDialog (mContext: Context, val layoutId :Int,val gprImageView: GPRIma
                 override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                     SharedPrefModel.mLum = progress * 1.0f / MAX_VALUE
                     SharedPrefModel.mLumPos = progress
-                    setImageview()
+                    setRawGprBitmapHL()
                 }
 
                 override fun onStartTrackingTouch(seekBar: SeekBar?) {
@@ -104,8 +104,7 @@ class ColorDialog (mContext: Context, val layoutId :Int,val gprImageView: GPRIma
         }
     }
 
-    fun setImageview(){
-
+    fun setRawGprBitmapHL(){
         val bitmap = ImageHelper.handleImageEffec(gprImageView.rawGprBitmap!!, SharedPrefModel.mSaturation, SharedPrefModel.mLum)
         gprImageView.showGprBitmap = bitmap
         gprImageView.drawGprBitmapOnMain()

@@ -14,6 +14,7 @@ import com.example.lifecycle.R
 import com.example.lifecycle.model.GPRDataManager
 import com.example.lifecycle.model.GPRDataMatrix
 import com.example.lifecycle.utils.ColorUtils
+import com.example.lifecycle.utils.ImageHelper
 import com.example.lifecycle.utils.SharedPrefModel
 import com.ortiz.touchview.TouchImageView
 import com.photo.utils.Constants
@@ -134,7 +135,7 @@ class GPRImageView(context: Context, attrs: AttributeSet) : TouchImageView(conte
         for(i in 0..distanceNumber){
             val posX = startX + i*verticalLineSpace
             canvas.drawLine(posX,distanceLinePT-lineLength,posX,distanceLinePT,linePaint)
-            canvas.drawText(String.format("%.1f",i.toFloat()),posX-10,distanceLinePT-20,textPaint)
+            canvas.drawText(String.format("%.1f",i*5.toFloat()),posX-10,distanceLinePT-20,textPaint)
         }
         canvas.drawLine(paddingLeft+gprBitmapWidth,distanceLinePT-lineLength,paddingLeft+gprBitmapWidth,distanceLinePT,linePaint)
         canvas.drawText(String.format("%.1f",SharedPrefModel.distanceInterval*Constants.DefaultTraces)+"m",paddingLeft+gprBitmapWidth,distanceLinePT-20,textPaint)
@@ -149,9 +150,7 @@ class GPRImageView(context: Context, attrs: AttributeSet) : TouchImageView(conte
             }else{
                 canvas.drawText((i*100).toString(),posX-10,distanceLinePT+45,textPaint)
             }
-
         }
-
     }
 
     fun drawDepthLine(canvas: Canvas){
@@ -192,9 +191,7 @@ class GPRImageView(context: Context, attrs: AttributeSet) : TouchImageView(conte
 
     //滤波数据更新
     fun updateData(data: GPRDataMatrix) = Single.fromCallable{
-        Log.d("xia",gprData.toString())
         gprData.copy(data)
-        Log.d("xia",gprData.toString())
         drawBitmap()
         drawGprBitmapOnMain()
     }
@@ -220,7 +217,10 @@ class GPRImageView(context: Context, attrs: AttributeSet) : TouchImageView(conte
                 gprCanvas.drawRect(rect, gprPaint)
             }
         }
-        showGprBitmap = rawGprBitmap
+
+        val bitmap = ImageHelper.handleImageEffec(rawGprBitmap!!, SharedPrefModel.mSaturation, SharedPrefModel.mLum)
+        showGprBitmap = bitmap
+
     }
 
 

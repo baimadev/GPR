@@ -55,6 +55,7 @@ class TopFragment : BindingFragment<FragmentTopBinding, TopViewModel>(
         //调色板
         RxView.clicks(binding.imageColor)
             .doOnNext {
+                revoke()
                 val dialog = ColorDialog(context!!, R.layout.dialog_color, gprImage)
                 dialog.show()
             }
@@ -62,19 +63,22 @@ class TopFragment : BindingFragment<FragmentTopBinding, TopViewModel>(
         //DC
         RxView.clicks(binding.imageCrop)
             .doOnNext {
+                revoke()
                 viewModel.layoutShowFlag.value =true
                 viewModel.editShowFlag.value =true
                 viewModel.editNumber.value = 1f
                 viewModel.editMode.value = EditMode.DCFilter
-                filter {
-                    it.DCFiliter()
-                }
+                GPRDataManager.matrixT.DCFiliter()
+                    .switchThread()
+                    .netProgressDialog(context!!)
+                    .bindLife()
             }
             .bindLife()
 
         //时间零点
         RxView.clicks(time_zero)
             .doOnNext {
+                revoke()
                 val offset =GPRDataManager.matrixT.timeZero()
                 viewModel.editNumber.value = offset
                 viewModel.layoutShowFlag.value =true
@@ -87,6 +91,7 @@ class TopFragment : BindingFragment<FragmentTopBinding, TopViewModel>(
         //截断滤波
         RxView.clicks(binding.imageTf)
             .doOnNext {
+                revoke()
                 viewModel.editNumber.value = 1f
                 viewModel.layoutShowFlag.value =true
                 viewModel.editShowFlag.value =true
@@ -97,6 +102,7 @@ class TopFragment : BindingFragment<FragmentTopBinding, TopViewModel>(
         //电位增益滤波
         RxView.clicks(binding.imagePotential)
             .doOnNext {
+                revoke()
                 viewModel.editNumber.value = 1f
                 viewModel.layoutShowFlag.value =true
                 viewModel.editShowFlag.value =true
@@ -107,6 +113,7 @@ class TopFragment : BindingFragment<FragmentTopBinding, TopViewModel>(
         //垂直推导
         RxView.clicks(binding.imageDerivation)
             .doOnNext {
+                revoke()
                 viewModel.editNumber.value = 1f
                 viewModel.layoutShowFlag.value =true
                 viewModel.editShowFlag.value =true
@@ -116,6 +123,7 @@ class TopFragment : BindingFragment<FragmentTopBinding, TopViewModel>(
         //平滑
         RxView.clicks(binding.imageBackground)
             .doOnNext {
+                revoke()
                 viewModel.editNumber.value = 1f
                 viewModel.layoutShowFlag.value =true
                 viewModel.editShowFlag.value =true
@@ -127,11 +135,14 @@ class TopFragment : BindingFragment<FragmentTopBinding, TopViewModel>(
         //频率域
         RxView.clicks(binding.imageFrequency)
             .doOnNext {
-                viewModel.editNumber.value = 1f
+                revoke()
+                viewModel.editNumber.value = 10f
                 viewModel.layoutShowFlag.value =true
                 viewModel.editShowFlag.value =true
                 viewModel.editMode.value = EditMode.Frequency
-                //todo
+                filter {
+                    it.frequency()
+                }
             }
             .bindLife()
 
@@ -185,6 +196,15 @@ class TopFragment : BindingFragment<FragmentTopBinding, TopViewModel>(
                             it.value = String.format("%.2f",it.value!! *2f).toFloat()
                             filter { matrix ->
                                 matrix.smoothLine(it.value!!)
+                            }
+                        }
+
+                    }
+                    EditMode.Frequency -> {
+                        viewModel.editNumber.let {
+                            it.add(4f)
+                            filter { matrix ->
+                                matrix.frequency(it.value!!.toInt())
                             }
                         }
 
@@ -261,6 +281,16 @@ class TopFragment : BindingFragment<FragmentTopBinding, TopViewModel>(
                         }
 
                     }
+
+                    EditMode.Frequency -> {
+                        viewModel.editNumber.let {
+                            it.decline(1f)
+                            filter { matrix ->
+                                matrix.frequency(it.value!!.toInt())
+                            }
+                        }
+
+                    }
                     else -> {
 
                     }
@@ -280,6 +310,33 @@ class TopFragment : BindingFragment<FragmentTopBinding, TopViewModel>(
         RxView.clicks(binding.imageRevoke)
             .doOnNext {
                 revoke()
+                when(viewModel.editMode.value){
+                    EditMode.TimeZero -> {
+                        val offset =GPRDataManager.matrixT.timeZero()
+                        viewModel.editNumber.value = offset
+                    }
+                    EditMode.DCFilter ->{
+                        viewModel.editNumber.value = 1f
+                    }
+                    EditMode.Truncation ->{
+                        viewModel.editNumber.value = 1f
+                    }
+                    EditMode.Potential ->{
+                        viewModel.editNumber.value = 1f
+                    }
+                    EditMode.Derivation ->{
+                        viewModel.editNumber.value = 1f
+                    }
+                    EditMode.Background -> {
+                        viewModel.editNumber.value = 1f
+                    }
+                    EditMode.Frequency -> {
+                        viewModel.editNumber.value = 10f
+                    }
+                    else -> {
+                        viewModel.editNumber.value = 0f
+                    }
+                }
             }
             .bindLife()
 
