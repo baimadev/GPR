@@ -3,11 +3,9 @@ package com.example.lifecycle.model
 import android.util.Log
 import com.example.lifecycle.utils.RealDoubleFFT
 import com.example.lifecycle.utils.SharedPrefModel
+import com.photo.utils.Constants
 import io.reactivex.Single
-import kotlin.math.abs
-import kotlin.math.atan
-import kotlin.math.ln
-import kotlin.math.pow
+import kotlin.math.*
 
 /**
  * 按行存储
@@ -26,6 +24,15 @@ data class GPRDataMatrix(var row: Int, var column : Int, var matrix : Array<Floa
         matrix = Array(row){it -> gprDataMatrix.matrix[it].copyOf()}
         max = gprDataMatrix.max
         min = gprDataMatrix.min
+    }
+
+    /**
+     * 道深计算
+     */
+    fun verticalDistance(trace:Int,start:Int = 100,end:Int = 150){
+
+        val depth = SharedPrefModel.timeWindow * (2.99792458E8 / sqrt(SharedPrefModel.dielectric)) / 2.0E9
+        Log.d("xia","  $depth")
     }
 
     //时间零点计算

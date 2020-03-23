@@ -8,5 +8,6 @@ enum class EditMode {
     Potential,
     Derivation,
     Background,
-    Frequency
+    Frequency,
+    Measure
 }

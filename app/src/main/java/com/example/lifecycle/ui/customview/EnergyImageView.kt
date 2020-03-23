@@ -76,7 +76,7 @@ class EnergyImageView (context: Context, attributeSet: AttributeSet): AppCompatI
         defaultY = (width-50)/abs(gprData.max - gprData.min)
         lastPos = width/2f to 0f
         canvas!!.drawColor(resources.getColor(R.color.background))
-        canvas.drawLine(width/2f-(midLineWidth/2f),0f,width/2f-(midLineWidth/2f),height.toFloat(),midPaint)
+        canvas.drawLine(width/2f,0f,width/2f,height.toFloat(),midPaint)
         if (gprData.matrix.isEmpty()) return
         gprData.matrix[trace].forEachIndexed { index, i ->
             val x = width/2f+ i*defaultY

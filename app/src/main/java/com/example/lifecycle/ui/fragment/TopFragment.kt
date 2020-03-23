@@ -146,6 +146,19 @@ class TopFragment : BindingFragment<FragmentTopBinding, TopViewModel>(
             }
             .bindLife()
 
+        //测量
+        RxView.clicks(binding.imageMeasure)
+            .doOnNext {
+                revoke()
+                viewModel.editNumber.value = 10f
+                viewModel.layoutShowFlag.value =true
+                viewModel.editShowFlag.value =true
+                viewModel.editMode.value = EditMode.Measure
+                for(i in 500..599){
+                    GPRDataManager.matrixA.verticalDistance(i)
+                }
+            }
+            .bindLife()
 
 
         //增加

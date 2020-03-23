@@ -21,6 +21,7 @@ import com.photo.utils.Constants
 import io.reactivex.Single
 import kotlin.math.abs
 import kotlin.math.pow
+import kotlin.math.sqrt
 
 
 class GPRImageView(context: Context, attrs: AttributeSet) : TouchImageView(context, attrs) {
@@ -154,7 +155,7 @@ class GPRImageView(context: Context, attrs: AttributeSet) : TouchImageView(conte
     }
 
     fun drawDepthLine(canvas: Canvas){
-        val depth = SharedPrefModel.timeWindow * (2.99792458E8 / Math.sqrt(6.0)) / 2.0E9
+        val depth = SharedPrefModel.timeWindow * (2.99792458E8 / sqrt(SharedPrefModel.dielectric)) / 2.0E9
         val startX = paddingLeft+gprBitmapWidth+20
         canvas.drawLine(startX,paddingTop,startX,paddingTop+gprBitmapHeight,linePaint)
         textPaint.textAlign = Paint.Align.LEFT
@@ -230,9 +231,6 @@ fun dataToFactor(data:Float,matrix:GPRDataMatrix,k:Float = 0.8f):Float{
     val max = colorFunction(matrix.max,k)
     val min = colorFunction(matrix.min,k)
     val num = colorFunction(data,k)
-    if((max - num)/(max - min)<0 || (max - num)/(max - min)>1){
-        Log.d("xia","${(max - num)/(max - min)} $data $max $min ${matrix.max} ${matrix.min}")
-    }
     return (max - num)/(max - min)
 }
 

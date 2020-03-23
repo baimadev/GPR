@@ -10,4 +10,5 @@ object Constants {
     const val RAD= "/storage/emulated/0/Android/data/com.tencent.mobileqq/Tencent/QQfile_recv/YHG10002.rad"
     const val MAIN_FRAGMENT_STACK= "multi return stack"
     const val DefaultTraces= 1500
+    const val LightSpeed= 2.99792458E8f
 }

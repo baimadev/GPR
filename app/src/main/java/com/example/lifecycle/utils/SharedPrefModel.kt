@@ -29,6 +29,6 @@ object SharedPrefModel : KotprefModel() {
 
     var mMidLinePos by intPref(Constants.DefaultTraces/2)
 
-
+    var dielectric by floatPref(6f)
 
 }

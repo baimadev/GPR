@@ -130,6 +130,19 @@
                 android:textColor="@color/white"
                 android:textSize="20sp"
                 android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/image_measure"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginStart="10dp"
+                android:background="?android:attr/selectableItemBackground"
+                android:gravity="center"
+                android:padding="5dp"
+                android:text="测量"
+                android:textColor="@color/white"
+                android:textSize="20sp"
+                android:textStyle="bold" />
         </LinearLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -151,6 +164,15 @@
                 android:id="@+id/line_image"
                 android:layout_width="10dp"
                 android:layout_height="300dp"
+                app:layout_constraintBottom_toBottomOf="@id/matrix"
+                app:layout_constraintLeft_toLeftOf="@id/matrix"
+                app:layout_constraintRight_toRightOf="@id/matrix"
+                app:layout_constraintTop_toTopOf="@id/matrix" />
+
+            <com.example.lifecycle.ui.customview.SqureImagView
+                android:id="@+id/squre_image"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
                 app:layout_constraintBottom_toBottomOf="@id/matrix"
                 app:layout_constraintLeft_toLeftOf="@id/matrix"
                 app:layout_constraintRight_toRightOf="@id/matrix"
