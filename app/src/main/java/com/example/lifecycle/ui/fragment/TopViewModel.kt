@@ -6,10 +6,11 @@ import androidx.lifecycle.MutableLiveData
 import com.photo.ui.fragment.base.BaseViewModel
 
 class TopViewModel (application: Application):BaseViewModel(application ){
-    val layoutShowFlag = MutableLiveData<Boolean>(false)
-    val editShowFlag = MutableLiveData<Boolean>(true)
+
     val editNumber = MutableLiveData<Float>(0f)
     val editMode = MutableLiveData<EditMode>(EditMode.NullMode)
+    val measureWidth = MutableLiveData<String>("宽度：0 m")
+    val measureHeight = MutableLiveData<String>("高度：0 m")
 
 }
 

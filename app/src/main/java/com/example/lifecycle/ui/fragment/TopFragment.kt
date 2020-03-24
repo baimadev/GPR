@@ -13,6 +13,7 @@ import com.example.lifecycle.ui.customview.ColorDialog
 import com.example.lifecycle.ui.customview.TFilterDialog
 import com.example.lifecycle.utils.ColorUtils
 import com.example.lifecycle.utils.FileUtil
+import com.example.lifecycle.utils.SharedPrefModel
 import com.jakewharton.rxbinding2.view.RxView
 import com.photo.ui.fragment.base.BindingFragment
 import com.photo.utils.Constants
@@ -24,6 +25,8 @@ import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.fragment_top.*
 import timber.log.Timber
 import java.io.File
+import kotlin.math.abs
+import kotlin.math.sqrt
 
 
 class TopFragment : BindingFragment<FragmentTopBinding, TopViewModel>(
@@ -64,8 +67,6 @@ class TopFragment : BindingFragment<FragmentTopBinding, TopViewModel>(
         RxView.clicks(binding.imageCrop)
             .doOnNext {
                 revoke()
-                viewModel.layoutShowFlag.value =true
-                viewModel.editShowFlag.value =true
                 viewModel.editNumber.value = 1f
                 viewModel.editMode.value = EditMode.DCFilter
                 GPRDataManager.matrixT.DCFiliter()
@@ -81,8 +82,6 @@ class TopFragment : BindingFragment<FragmentTopBinding, TopViewModel>(
                 revoke()
                 val offset =GPRDataManager.matrixT.timeZero()
                 viewModel.editNumber.value = offset
-                viewModel.layoutShowFlag.value =true
-                viewModel.editShowFlag.value =true
                 viewModel.editMode.value = EditMode.TimeZero
             }
             .bindLife()
@@ -93,8 +92,6 @@ class TopFragment : BindingFragment<FragmentTopBinding, TopViewModel>(
             .doOnNext {
                 revoke()
                 viewModel.editNumber.value = 1f
-                viewModel.layoutShowFlag.value =true
-                viewModel.editShowFlag.value =true
                 viewModel.editMode.value = EditMode.Truncation
             }
             .bindLife()
@@ -104,8 +101,6 @@ class TopFragment : BindingFragment<FragmentTopBinding, TopViewModel>(
             .doOnNext {
                 revoke()
                 viewModel.editNumber.value = 1f
-                viewModel.layoutShowFlag.value =true
-                viewModel.editShowFlag.value =true
                 viewModel.editMode.value = EditMode.Potential
             }
             .bindLife()
@@ -115,8 +110,6 @@ class TopFragment : BindingFragment<FragmentTopBinding, TopViewModel>(
             .doOnNext {
                 revoke()
                 viewModel.editNumber.value = 1f
-                viewModel.layoutShowFlag.value =true
-                viewModel.editShowFlag.value =true
                 viewModel.editMode.value = EditMode.Derivation
             }
             .bindLife()
@@ -125,8 +118,6 @@ class TopFragment : BindingFragment<FragmentTopBinding, TopViewModel>(
             .doOnNext {
                 revoke()
                 viewModel.editNumber.value = 1f
-                viewModel.layoutShowFlag.value =true
-                viewModel.editShowFlag.value =true
                 viewModel.editMode.value = EditMode.Background
 
             }
@@ -137,8 +128,6 @@ class TopFragment : BindingFragment<FragmentTopBinding, TopViewModel>(
             .doOnNext {
                 revoke()
                 viewModel.editNumber.value = 10f
-                viewModel.layoutShowFlag.value =true
-                viewModel.editShowFlag.value =true
                 viewModel.editMode.value = EditMode.Frequency
                 filter {
                     it.frequency()
@@ -146,20 +135,25 @@ class TopFragment : BindingFragment<FragmentTopBinding, TopViewModel>(
             }
             .bindLife()
 
+        //todo 介电常数输入
         //测量
         RxView.clicks(binding.imageMeasure)
             .doOnNext {
                 revoke()
-                viewModel.editNumber.value = 10f
-                viewModel.layoutShowFlag.value =true
-                viewModel.editShowFlag.value =true
                 viewModel.editMode.value = EditMode.Measure
-                for(i in 500..599){
-                    GPRDataManager.matrixA.verticalDistance(i)
-                }
             }
             .bindLife()
 
+        //确定测量
+        RxView.clicks(image_ensure)
+            .doOnNext {
+                val verticalLeft = binding.leftVerticalLine.trace
+                val verticalRight = binding.rightVerticalLine.trace
+                val horizontalLeft = binding.leftHorizontalLine.trace
+                val horizontalRight = binding.rightHorizontalLine.trace
+                measure(verticalLeft,verticalRight,horizontalLeft,horizontalRight)
+            }
+            .bindLife()
 
         //增加
         RxView.clicks(image_enhance)
@@ -314,7 +308,6 @@ class TopFragment : BindingFragment<FragmentTopBinding, TopViewModel>(
         //保存
         RxView.clicks(binding.imageSave)
             .doOnNext {
-                viewModel.layoutShowFlag.value = false
                 saveData()
             }
             .bindLife()
@@ -420,6 +413,7 @@ class TopFragment : BindingFragment<FragmentTopBinding, TopViewModel>(
             }
             .bindLife()
     }
+
     fun updateView(matrix:GPRDataMatrix,operation:(()->Unit) ? = null){
         gprImage.updateData(matrix)
             .switchThread()
@@ -430,4 +424,14 @@ class TopFragment : BindingFragment<FragmentTopBinding, TopViewModel>(
             }
             .bindLife()
     }
+    val depth = SharedPrefModel.timeWindow * (2.99792458E8 / sqrt(
+        SharedPrefModel.dielectric)) / 2.0E9
+
+    fun measure(verticalLeft:Int,verticalRight:Int,horizontalLeft:Int,horizontalRight:Int){
+        val height = abs(horizontalLeft-horizontalRight).toFloat()/SharedPrefModel.samples*depth
+        viewModel.measureHeight.value = String.format("高度：%.2f m",height)
+        val width = abs(verticalLeft-verticalRight)*SharedPrefModel.distanceInterval
+        viewModel.measureWidth.value = String.format("宽度：%.2f m",width)
+    }
+
 }

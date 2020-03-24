@@ -2,10 +2,7 @@ package com.example.lifecycle.ui.customview
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Matrix
-import android.graphics.Paint
+import android.graphics.*
 import android.util.AttributeSet
 import android.util.Log
 import android.view.MotionEvent
@@ -16,59 +13,49 @@ import com.example.lifecycle.utils.SharedPrefModel
 import com.photo.utils.Constants
 
 
-class LineImagView ( context: Context,attributeSet: AttributeSet): AppCompatImageView(context,attributeSet) {
+class VerticalLine (context: Context, attributeSet: AttributeSet): AppCompatImageView(context,attributeSet) {
 
     private var lastX  = 0
-    private var lastY  = 0
+    var trace = 0
     val paddingLeft = 80f
-    var mMatrix : Matrix = Matrix()
+    val gprPaddingTop = 120f
     val midPaint = Paint()
     var defaultX = 0f
     var onTranslate:((Int) -> Unit)? = null
     //像素宽高
     val rectWidth = 1f
+    val rectHeight = 2f
     val gprImageViewWidth = rectWidth*Constants.DefaultTraces
+    val gprImageViewHeight = rectHeight*SharedPrefModel.samples
 
     init {
-        midPaint.color = Color.RED
-        midPaint.strokeWidth = 10f
-        midPaint.style = Paint.Style.STROKE
-    }
-    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
-        val widthMode=MeasureSpec.getMode(widthMeasureSpec)
-        val widthSize=MeasureSpec.getSize(widthMeasureSpec)
-
-        val heightMode=MeasureSpec.getMode(heightMeasureSpec)
-        val heightSize=MeasureSpec.getSize(heightMeasureSpec)
-
-        var width=(getPaddingLeft()+getPaddingRight()+20f).toInt()
-        var height=(getPaddingBottom()+getPaddingTop()+20f).toInt()
-
-        if(widthMode==MeasureSpec.EXACTLY){
-            //如果match_parent或者具体的值，直接赋值
-            width=widthSize
-        }
-        //高度跟宽度处理方式一样
-        if(heightMode==MeasureSpec.EXACTLY){
-            height=heightSize
-        }
-        //保存测量宽度和测量高度
-        setMeasuredDimension(width,height)
-
+        midPaint.color = context.getColor(R.color.white)
+        midPaint.strokeWidth = 5f
     }
 
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
         super.onLayout(true, 0, 0, width, height)
+        trace = ((x-30-paddingLeft)/gprImageViewWidth * Constants.DefaultTraces).toInt()
+        if (trace>=Constants.DefaultTraces){
+            trace = Constants.DefaultTraces-1
+        }else if(trace<0){
+            trace = 0
+        }
+        Log.d("xia","v onLayout")
     }
 
 
     @SuppressLint("ResourceAsColor")
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
+        val bitmap = BitmapFactory.decodeResource(context.resources,R.drawable.triangle)
+        val mainBitmap = Bitmap.createBitmap(width,height,Bitmap.Config.ARGB_8888)
+        val mainCanvas = Canvas(mainBitmap)
 
-        canvas!!.drawColor(R.color.lineColor)
-        mMatrix.preTranslate(5f,0f)
+        mainCanvas.drawBitmap(bitmap,6f,gprPaddingTop+gprImageViewHeight-10,midPaint)
+        mainCanvas.drawLine(width/2f,gprPaddingTop,width/2f,gprPaddingTop+gprImageViewHeight,midPaint)
+        canvas!!.drawBitmap(mainBitmap,0f,0f,midPaint)
+
     }
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
@@ -83,20 +70,20 @@ class LineImagView ( context: Context,attributeSet: AttributeSet): AppCompatImag
                 // 计算偏移量
                 var offsetX: Int = x - lastX
          
-                if((left+offsetX)<(30+paddingLeft)){
+                if((left+offsetX)<(30+paddingLeft-width/2)){
                     offsetX = 0
                 }
-                if((right+offsetX)>(30+paddingLeft+gprImageViewWidth)){
+                if((right+offsetX)>(30+paddingLeft+gprImageViewWidth+width/2)){
                     offsetX = 0
                 }
                 layout(left + offsetX, top , right + offsetX, bottom)
-                var trace = ((x-30-paddingLeft)/gprImageViewWidth * Constants.DefaultTraces).toInt()
+
+                trace = ((x-30-paddingLeft)/gprImageViewWidth * Constants.DefaultTraces).toInt()
                 if (trace>=Constants.DefaultTraces){
                    trace = Constants.DefaultTraces-1
                 }else if(trace<0){
                     trace = 0
                 }
-                SharedPrefModel.mMidLinePos = trace
                 onTranslate?.invoke(trace)
                 //重新设置初始化坐标
                 lastX = x
