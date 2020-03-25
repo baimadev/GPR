@@ -25,7 +25,7 @@ class VerticalLine (context: Context, attributeSet: AttributeSet): AppCompatImag
     //像素宽高
     val rectWidth = 1f
     val rectHeight = 2f
-    val gprImageViewWidth = rectWidth*Constants.DefaultTraces
+    val gprImageViewWidth = rectWidth*SharedPrefModel.defaultTraces
     val gprImageViewHeight = rectHeight*SharedPrefModel.samples
 
     init {
@@ -35,13 +35,12 @@ class VerticalLine (context: Context, attributeSet: AttributeSet): AppCompatImag
 
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
         super.onLayout(true, 0, 0, width, height)
-        trace = ((x-30-paddingLeft)/gprImageViewWidth * Constants.DefaultTraces).toInt()
-        if (trace>=Constants.DefaultTraces){
-            trace = Constants.DefaultTraces-1
+        trace = ((x-30-paddingLeft)/gprImageViewWidth * SharedPrefModel.defaultTraces).toInt()
+        if (trace>=SharedPrefModel.defaultTraces){
+            trace = SharedPrefModel.defaultTraces-1
         }else if(trace<0){
             trace = 0
         }
-        Log.d("xia","v onLayout")
     }
 
 
@@ -78,9 +77,9 @@ class VerticalLine (context: Context, attributeSet: AttributeSet): AppCompatImag
                 }
                 layout(left + offsetX, top , right + offsetX, bottom)
 
-                trace = ((x-30-paddingLeft)/gprImageViewWidth * Constants.DefaultTraces).toInt()
-                if (trace>=Constants.DefaultTraces){
-                   trace = Constants.DefaultTraces-1
+                trace = ((x-30-paddingLeft)/gprImageViewWidth * SharedPrefModel.defaultTraces).toInt()
+                if (trace>=SharedPrefModel.defaultTraces){
+                   trace = SharedPrefModel.defaultTraces-1
                 }else if(trace<0){
                     trace = 0
                 }

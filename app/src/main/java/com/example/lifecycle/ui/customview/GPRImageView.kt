@@ -71,7 +71,7 @@ class GPRImageView(context: Context, attrs: AttributeSet) : TouchImageView(conte
         midPaint.strokeWidth = 10f
         midPaint.style = Paint.Style.STROKE
         gprBitmapHeight = (rectHeight * SharedPrefModel.samples).toInt()
-        gprBitmapWidth = (rectWidth * Constants.DefaultTraces).toInt()
+        gprBitmapWidth = (rectWidth * SharedPrefModel.defaultTraces).toInt()
         defaultX = paddingLeft+(gprBitmapWidth/2)
     }
 
@@ -129,7 +129,7 @@ class GPRImageView(context: Context, attrs: AttributeSet) : TouchImageView(conte
 
     fun drawDistanceLine(canvas: Canvas) {
         canvas.drawLine(paddingLeft,distanceLinePT,paddingLeft+gprBitmapWidth,distanceLinePT,linePaint)
-        val distanceNumber = (SharedPrefModel.distanceInterval * Constants.DefaultTraces).toInt()/5
+        val distanceNumber = (SharedPrefModel.distanceInterval * SharedPrefModel.defaultTraces).toInt()/5
         val verticalLineSpace = 5/SharedPrefModel.distanceInterval*rectWidth
         var startX = paddingLeft
         textPaint.textAlign = Paint.Align.CENTER
@@ -139,10 +139,10 @@ class GPRImageView(context: Context, attrs: AttributeSet) : TouchImageView(conte
             canvas.drawText(String.format("%.1f",i*5.toFloat()),posX-10,distanceLinePT-20,textPaint)
         }
         canvas.drawLine(paddingLeft+gprBitmapWidth,distanceLinePT-lineLength,paddingLeft+gprBitmapWidth,distanceLinePT,linePaint)
-        canvas.drawText(String.format("%.1f",SharedPrefModel.distanceInterval*Constants.DefaultTraces)+"m",paddingLeft+gprBitmapWidth,distanceLinePT-20,textPaint)
+        canvas.drawText(String.format("%.1f",SharedPrefModel.distanceInterval*SharedPrefModel.defaultTraces)+"m",paddingLeft+gprBitmapWidth,distanceLinePT-20,textPaint)
 
         val traceSpace = rectWidth*100
-        val traceNumber = Constants.DefaultTraces /100
+        val traceNumber = SharedPrefModel.defaultTraces /100
         for(i in 0..traceNumber){
             val posX = startX + i*traceSpace
             canvas.drawLine(posX,distanceLinePT+lineLength,posX,distanceLinePT,linePaint)

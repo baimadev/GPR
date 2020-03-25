@@ -9,5 +9,6 @@
     <color name="background">#FFD740</color>
     <color name="blue">#FFEA00</color>
     <color name="lineColor">#00FFFF</color>
+    <color name="gray">#999999</color>
 
 </resources>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:gravity="center"
+    android:background="?android:attr/selectableItemBackground"
+    android:orientation="vertical">
+
+    <ImageView
+        android:id="@+id/item_image"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_gravity="center"
+        android:layout_marginLeft="10dp"
+        android:src="@drawable/ic_insert_drive_file_black_24dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/text"
+        android:layout_width="80dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:paddingStart="5dp"
+        android:paddingLeft="20dp"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp"
+        android:singleLine="false"
+        android:textSize="10sp"
+        app:layout_constraintLeft_toLeftOf="@id/item_image"
+        app:layout_constraintRight_toRightOf="@id/item_image"
+        app:layout_constraintTop_toBottomOf="@+id/item_image"
+        tools:text="sdsd" />
+
+    <ImageView
+        android:id="@+id/image_select"
+        android:visibility="invisible"
+        android:layout_width="15dp"
+        android:layout_height="15dp"
+        android:src="@drawable/picture_selected"
+        app:layout_constraintBottom_toBottomOf="@id/item_image"
+        app:layout_constraintRight_toRightOf="@id/item_image" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

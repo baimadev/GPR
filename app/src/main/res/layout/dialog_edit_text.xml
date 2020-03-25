@@ -51,6 +51,7 @@
             android:layout_height="match_parent"
             android:layout_marginTop="5dp"
             android:inputType="number"
+            android:padding="10dp"
             android:shadowColor="@color/back"
             android:textColor="@color/colorPrimary"
             app:layout_constraintLeft_toLeftOf="parent"

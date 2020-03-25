@@ -36,7 +36,7 @@ class SqureImagView (context: Context, attributeSet: AttributeSet): AppCompatIma
     //像素宽高
     var rectWidth = 1f
     var rectHeight = 2f
-    val gprImageViewWidth = rectWidth*Constants.DefaultTraces
+    val gprImageViewWidth = rectWidth*SharedPrefModel.defaultTraces
     val gprImageViewHeight = rectHeight*SharedPrefModel.samples
     init {
         val canvas = Canvas(bitmap)

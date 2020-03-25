@@ -18,7 +18,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/green"
+        android:background="@color/colorPrimary"
         android:orientation="vertical">
 
         <LinearLayout
@@ -39,8 +39,22 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
+                android:layout_marginLeft="10dp"
                 android:background="?android:attr/selectableItemBackground"
                 android:src="@drawable/ic_color_lens_black_24dp" />
+
+            <TextView
+                android:id="@+id/image_reset"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginStart="10dp"
+                android:background="?android:attr/selectableItemBackground"
+                android:gravity="center"
+                android:padding="5dp"
+                android:text="重置"
+                android:textColor="@color/white"
+                android:textSize="20sp"
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/image_crop"
@@ -164,9 +178,9 @@
 
             <com.example.lifecycle.ui.customview.VerticalLine
                 android:id="@+id/line_image"
-                android:visibility="@{data.editMode == EditMode.Measure ? View.GONE :View.VISIBLE}"
                 android:layout_width="20dp"
                 android:layout_height="0dp"
+                android:visibility="@{data.editMode == EditMode.Measure ? View.GONE :View.VISIBLE}"
                 app:layout_constraintBottom_toBottomOf="@id/matrix"
                 app:layout_constraintLeft_toLeftOf="@id/matrix"
                 app:layout_constraintRight_toRightOf="@id/matrix"
@@ -174,30 +188,30 @@
 
             <com.example.lifecycle.ui.customview.VerticalLine
                 android:id="@+id/left_vertical_line"
-                android:visibility="@{data.editMode == EditMode.Measure ? View.VISIBLE :View.GONE}"
                 android:layout_width="20dp"
                 android:layout_height="0dp"
                 android:layout_marginEnd="200dp"
+                android:visibility="@{data.editMode == EditMode.Measure ? View.VISIBLE :View.GONE}"
                 app:layout_constraintBottom_toBottomOf="@id/matrix"
                 app:layout_constraintRight_toRightOf="@id/matrix"
                 app:layout_constraintTop_toTopOf="@id/matrix" />
 
             <com.example.lifecycle.ui.customview.VerticalLine
                 android:id="@+id/right_vertical_line"
-                android:visibility="@{data.editMode == EditMode.Measure ? View.VISIBLE :View.GONE}"
                 android:layout_width="20dp"
                 android:layout_height="0dp"
                 android:layout_marginStart="200dp"
+                android:visibility="@{data.editMode == EditMode.Measure ? View.VISIBLE :View.GONE}"
                 app:layout_constraintBottom_toBottomOf="@id/matrix"
                 app:layout_constraintLeft_toLeftOf="@id/matrix"
                 app:layout_constraintTop_toTopOf="@id/matrix" />
 
             <com.example.lifecycle.ui.customview.HorizontalLine
                 android:id="@+id/left_horizontal_line"
-                android:visibility="@{data.editMode == EditMode.Measure ? View.VISIBLE :View.GONE}"
                 android:layout_width="0dp"
                 android:layout_height="20dp"
                 android:layout_marginTop="50dp"
+                android:visibility="@{data.editMode == EditMode.Measure ? View.VISIBLE :View.GONE}"
                 app:layout_constraintLeft_toLeftOf="@id/matrix"
                 app:layout_constraintRight_toRightOf="@id/matrix"
                 app:layout_constraintTop_toTopOf="@id/matrix" />
@@ -205,14 +219,13 @@
 
             <com.example.lifecycle.ui.customview.HorizontalLine
                 android:id="@+id/right_horizontal_line"
-                android:visibility="@{data.editMode == EditMode.Measure ? View.VISIBLE :View.GONE}"
                 android:layout_width="0dp"
                 android:layout_height="20dp"
                 android:layout_marginBottom="50dp"
+                android:visibility="@{data.editMode == EditMode.Measure ? View.VISIBLE :View.GONE}"
                 app:layout_constraintBottom_toBottomOf="@id/matrix"
-                app:layout_constraintRight_toRightOf="@id/matrix"
                 app:layout_constraintLeft_toLeftOf="@id/matrix"
-                />
+                app:layout_constraintRight_toRightOf="@id/matrix" />
 
             <com.example.lifecycle.ui.customview.EnergyImageView
                 android:id="@+id/energy_image"
@@ -227,12 +240,12 @@
                 app:layout_constraintTop_toTopOf="@+id/matrix" />
 
             <LinearLayout
-                android:visibility="@{data.editMode == EditMode.Measure ? View.GONE :View.VISIBLE}"
                 android:id="@+id/layout_tool"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:orientation="horizontal"
+                android:visibility="@{(data.editMode == EditMode.Measure)||(data.editMode == EditMode.NullMode)? View.GONE :View.VISIBLE}"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/matrix">
@@ -287,18 +300,17 @@
             </LinearLayout>
 
             <LinearLayout
-                android:visibility="@{data.editMode == EditMode.Measure ? View.VISIBLE :View.GONE}"
                 android:id="@+id/layout_measure"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:orientation="horizontal"
+                android:visibility="@{data.editMode == EditMode.Measure ? View.VISIBLE :View.GONE}"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/matrix">
 
                 <TextView
-                    tools:text = "宽度：0.5m"
                     android:id="@+id/width"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
@@ -307,10 +319,10 @@
                     android:gravity="center"
                     android:padding="5dp"
                     android:text="@{data.measureWidth}"
-                    android:textColor="@color/white" />
+                    android:textColor="@color/white"
+                    tools:text="宽度：0.5m" />
 
                 <TextView
-                    tools:text = "高度：0.5m"
                     android:id="@+id/height"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
@@ -319,7 +331,8 @@
                     android:gravity="center"
                     android:padding="5dp"
                     android:text="@{data.measureHeight}"
-                    android:textColor="@color/white" />
+                    android:textColor="@color/white"
+                    tools:text="高度：0.5m" />
 
                 <ImageView
                     android:id="@+id/image_ensure"

@@ -102,16 +102,14 @@ object FileUtil {
         return GPRDataMatrix(row, array[0]!!.size, array,max,min)
     }
 
-    /**
-     * 读取了前row个道
-     */
+
     fun readFileToMatrix(file: File,part: Int): GPRDataMatrix {
 
         val bufferReader = file.bufferedReader(Charset.forName("ASCII"))
         var max = Float.MIN_VALUE
         var min = Float.MAX_VALUE
         val col = SharedPrefModel.samples
-        val row = Constants.DefaultTraces
+        val row = SharedPrefModel.defaultTraces
         val array = Array(row){ FloatArray(col)}
 
         val partRow = (part-1)*row
@@ -139,9 +137,8 @@ object FileUtil {
                 }
                 array[i] = spString
             }
-
         }
-        return GPRDataMatrix(row, array[0]!!.size, array,max,min)
+        return GPRDataMatrix(row, array[0].size, array,max,min)
     }
     
     private fun cuantoes(str: String): Float {

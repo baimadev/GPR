@@ -36,9 +36,11 @@
         </activity>
 
         <activity
+            android:screenOrientation="landscape"
             android:name=".ui.activity.findfileguide.FindFileGuideActivity"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar"
+            tools:ignore="LockedOrientationActivity">
         </activity>
     </application>
 

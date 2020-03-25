@@ -10,7 +10,6 @@ import android.widget.ImageView
 import androidx.appcompat.widget.AppCompatImageView
 import com.example.lifecycle.R
 import com.example.lifecycle.utils.SharedPrefModel
-import com.photo.utils.Constants
 
 
 class HorizontalLine (context: Context, attributeSet: AttributeSet): AppCompatImageView(context,attributeSet) {
@@ -25,7 +24,7 @@ class HorizontalLine (context: Context, attributeSet: AttributeSet): AppCompatIm
     //像素宽高
     val rectWidth = 1f
     val rectHeight = 2f
-    val gprImageViewWidth = rectWidth*Constants.DefaultTraces
+    val gprImageViewWidth = rectWidth*SharedPrefModel.defaultTraces
     val gprImageViewHeight = rectHeight*SharedPrefModel.samples
     val leftStart = gprPaddingLeft
     val leftEnd = leftStart+gprImageViewWidth
@@ -35,13 +34,17 @@ class HorizontalLine (context: Context, attributeSet: AttributeSet): AppCompatIm
     var mRight = 0
     var mTop = 0
     var mBottom = 0
+    var bitmap :Bitmap
+    lateinit var mainBitmap :Bitmap
     init {
         midPaint.color = context.getColor(R.color.white)
         midPaint.strokeWidth = 5f
+        bitmap = BitmapFactory.decodeResource(context.resources,R.drawable.triangle_horizontal)
+
     }
 
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
-        super.onLayout(true, 0, 0, width, height)
+        super.onLayout(changed, left, top, right, bottom)
         trace = ((top-topStart+height/2)/gprImageViewHeight * SharedPrefModel.samples).toInt()
         if (trace>=SharedPrefModel.samples){
             trace = SharedPrefModel.samples-1
@@ -54,10 +57,8 @@ class HorizontalLine (context: Context, attributeSet: AttributeSet): AppCompatIm
     @SuppressLint("ResourceAsColor")
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
-        val bitmap = BitmapFactory.decodeResource(context.resources,R.drawable.triangle_horizontal)
-        val mainBitmap = Bitmap.createBitmap(width,height,Bitmap.Config.ARGB_8888)
+        mainBitmap = Bitmap.createBitmap(width,height,Bitmap.Config.ARGB_8888)
         val mainCanvas = Canvas(mainBitmap)
-
         mainCanvas.drawBitmap(bitmap,leftEnd,8f,midPaint)
         mainCanvas.drawLine(leftStart,height/2f,leftEnd,height/2f,midPaint)
         canvas!!.drawBitmap(mainBitmap,0f,0f,midPaint)
