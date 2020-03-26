@@ -18,6 +18,7 @@ import com.example.lifecycle.ui.customview.EditDialog2
 import com.example.lifecycle.utils.ColorUtils
 import com.example.lifecycle.utils.FileUtil
 import com.example.lifecycle.utils.SharedPrefModel
+import com.jakewharton.rxbinding2.view.RxView
 import com.photo.utils.*
 import com.tbruyelle.rxpermissions2.RxPermissions
 import io.reactivex.Single
@@ -31,7 +32,8 @@ class SplashActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
-
+        setStatusBarFullTransparent()
+        setFitSystemWindow(false)
         if (isTaskRoot) init()
         else goToNextActivity()
     }
@@ -51,6 +53,12 @@ class SplashActivity : BaseActivity() {
             )
 
         }
+
+        RxView.clicks(bt_import)
+            .doOnNext {
+                importFile()
+            }
+            .bindLife()
 
         Single.just(ColorUtils.initColoracion())
             .switchThread()
