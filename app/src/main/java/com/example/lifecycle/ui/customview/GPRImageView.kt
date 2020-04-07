@@ -4,13 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
-import android.util.Log
-import android.view.GestureDetector
-import android.view.LayoutInflater
-import android.view.MotionEvent
-import android.view.ViewTreeObserver
-import android.widget.ImageView
-import com.example.lifecycle.R
 import com.example.lifecycle.model.GPRDataManager
 import com.example.lifecycle.model.GPRDataMatrix
 import com.example.lifecycle.utils.ColorUtils
@@ -26,13 +19,14 @@ import kotlin.math.sqrt
 
 class GPRImageView(context: Context, attrs: AttributeSet) : TouchImageView(context, attrs) {
 
+    val dataInstance = GPRDataManager
     //像素宽高
     var rectWidth = 1f
     var rectHeight = 2f
     //雷达数据 i j
     var gprData: GPRDataMatrix = GPRDataMatrix.emptyMatrix()
     // gprBitmap距view四边距离
-    val paddingLeft = 80f
+    var paddingLeft = 80f
     val paddingTop = 120f
     val paddingBottom = 60f
     val paddingRight = 80f
@@ -59,6 +53,7 @@ class GPRImageView(context: Context, attrs: AttributeSet) : TouchImageView(conte
     lateinit var onDrawObserver :() -> Unit
 
     init {
+        if (dataInstance.samples>220)rectHeight=1f
         linePaint.color = Color.BLACK
         linePaint.style = Paint.Style.STROKE
         linePaint.strokeWidth = 5f
@@ -70,9 +65,10 @@ class GPRImageView(context: Context, attrs: AttributeSet) : TouchImageView(conte
         midPaint.color = Color.RED
         midPaint.strokeWidth = 10f
         midPaint.style = Paint.Style.STROKE
-        gprBitmapHeight = (rectHeight * SharedPrefModel.samples).toInt()
-        gprBitmapWidth = (rectWidth * SharedPrefModel.defaultTraces).toInt()
+        gprBitmapHeight = (rectHeight * dataInstance.samples).toInt()
+        gprBitmapWidth = (rectWidth * dataInstance.defaultTraces).toInt()
         defaultX = paddingLeft+(gprBitmapWidth/2)
+
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -105,6 +101,9 @@ class GPRImageView(context: Context, attrs: AttributeSet) : TouchImageView(conte
     @SuppressLint("CheckResult", "DrawAllocation")
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
+        if(dataInstance.defaultTraces<1500){
+            paddingLeft = width/2f - gprBitmapWidth/2f
+        }
         onDrawObserver.invoke()
     }
 
@@ -112,25 +111,26 @@ class GPRImageView(context: Context, attrs: AttributeSet) : TouchImageView(conte
 
     fun drawTimeLine(canvas: Canvas) {
 
-        canvas.drawLine(timeLinePL,paddingTop,timeLinePL,paddingTop+gprBitmapHeight,linePaint)
+        val left = paddingLeft-15f
+        canvas.drawLine(left,paddingTop,left,paddingTop+gprBitmapHeight,linePaint)
         textPaint.textAlign = Paint.Align.RIGHT
-        var horizontalLineNumber = SharedPrefModel.timeWindow.toInt()/10
-        val horizontalLineSpace =  SharedPrefModel.samples/SharedPrefModel.timeWindow*10*rectHeight
+        var horizontalLineNumber = dataInstance.timeWindow.toInt()/10
+        val horizontalLineSpace =  dataInstance.samples/dataInstance.timeWindow*10*rectHeight
         var horizontalLineStartY = paddingTop
         for(i in 0 .. horizontalLineNumber){
             val startY = horizontalLineStartY+(i*horizontalLineSpace)
-            canvas.drawLine(timeLinePL-lineLength,startY,timeLinePL,startY,linePaint)
-            canvas.drawText((i*10).toString(),timeLinePL-20,startY+15,textPaint)
+            canvas.drawLine(left-lineLength,startY,left,startY,linePaint)
+            canvas.drawText((i*10).toString(),left-20,startY+15,textPaint)
         }
-        canvas.drawLine(timeLinePL-lineLength,paddingTop+gprBitmapHeight,timeLinePL,paddingTop+gprBitmapHeight,linePaint)
-        canvas.drawText((String.format("%.2f",SharedPrefModel.timeWindow))+"ns",timeLinePL+80,paddingTop+gprBitmapHeight+50,textPaint)
+        canvas.drawLine(left-lineLength,paddingTop+gprBitmapHeight,left,paddingTop+gprBitmapHeight,linePaint)
+        canvas.drawText((String.format("%.2f",dataInstance.timeWindow))+"ns",left+80,paddingTop+gprBitmapHeight+50,textPaint)
 
     }
 
     fun drawDistanceLine(canvas: Canvas) {
         canvas.drawLine(paddingLeft,distanceLinePT,paddingLeft+gprBitmapWidth,distanceLinePT,linePaint)
-        val distanceNumber = (SharedPrefModel.distanceInterval * SharedPrefModel.defaultTraces).toInt()/5
-        val verticalLineSpace = 5/SharedPrefModel.distanceInterval*rectWidth
+        val distanceNumber = (dataInstance.distanceInterval * dataInstance.defaultTraces).toInt()/5
+        val verticalLineSpace = 5/dataInstance.distanceInterval*rectWidth
         var startX = paddingLeft
         textPaint.textAlign = Paint.Align.CENTER
         for(i in 0..distanceNumber){
@@ -139,10 +139,10 @@ class GPRImageView(context: Context, attrs: AttributeSet) : TouchImageView(conte
             canvas.drawText(String.format("%.1f",i*5.toFloat()),posX-10,distanceLinePT-20,textPaint)
         }
         canvas.drawLine(paddingLeft+gprBitmapWidth,distanceLinePT-lineLength,paddingLeft+gprBitmapWidth,distanceLinePT,linePaint)
-        canvas.drawText(String.format("%.1f",SharedPrefModel.distanceInterval*SharedPrefModel.defaultTraces)+"m",paddingLeft+gprBitmapWidth,distanceLinePT-20,textPaint)
+        canvas.drawText(String.format("%.1f",dataInstance.distanceInterval*dataInstance.defaultTraces)+"m",paddingLeft+gprBitmapWidth,distanceLinePT-20,textPaint)
 
         val traceSpace = rectWidth*100
-        val traceNumber = SharedPrefModel.defaultTraces /100
+        val traceNumber = dataInstance.defaultTraces /100
         for(i in 0..traceNumber){
             val posX = startX + i*traceSpace
             canvas.drawLine(posX,distanceLinePT+lineLength,posX,distanceLinePT,linePaint)
@@ -155,7 +155,7 @@ class GPRImageView(context: Context, attrs: AttributeSet) : TouchImageView(conte
     }
 
     fun drawDepthLine(canvas: Canvas){
-        val depth = SharedPrefModel.timeWindow * (2.99792458E8 / sqrt(SharedPrefModel.dielectric)) / 2.0E9
+        val depth = dataInstance.timeWindow * (2.99792458E8 / sqrt(dataInstance.dielectric)) / 2.0E9
         val startX = paddingLeft+gprBitmapWidth+20
         canvas.drawLine(startX,paddingTop,startX,paddingTop+gprBitmapHeight,linePaint)
         textPaint.textAlign = Paint.Align.LEFT
@@ -219,7 +219,7 @@ class GPRImageView(context: Context, attrs: AttributeSet) : TouchImageView(conte
             }
         }
 
-        val bitmap = ImageHelper.handleImageEffec(rawGprBitmap!!, SharedPrefModel.mSaturation, SharedPrefModel.mLum)
+        val bitmap = ImageHelper.handleImageEffec(rawGprBitmap!!, SharedPrefModel.mSaturation,  SharedPrefModel.mLum)
         showGprBitmap = bitmap
 
     }

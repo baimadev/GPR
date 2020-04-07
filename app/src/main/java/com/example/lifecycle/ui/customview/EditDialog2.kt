@@ -16,13 +16,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import com.example.lifecycle.BR
 import com.example.lifecycle.R
-import com.example.lifecycle.databinding.DialogEditTextBinding
-import com.example.lifecycle.utils.ImageHelper
-import com.example.lifecycle.utils.SharedPrefModel
-import com.example.lifecycle.utils.SharedPrefModel.dielectric
-import com.photo.utils.Constants
-import io.reactivex.Single
-import kotlinx.android.synthetic.main.dialog_color.*
+
 import kotlinx.android.synthetic.main.dialog_color.bt_close
 import kotlinx.android.synthetic.main.dialog_color.image_done
 import kotlinx.android.synthetic.main.dialog_edit_text.*

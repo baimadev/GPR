@@ -2,10 +2,8 @@ package com.example.lifecycle.base
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Toast
 import com.example.lifecycle.ActivityLifeEvent
 import com.example.lifecycle.ActivityLifecycleOwner
-import com.example.lifecycle.R
 import com.github.salomonbrys.kodein.KodeinInjector
 import com.github.salomonbrys.kodein.android.AppCompatActivityInjector
 import com.photo.utils.BindLife
@@ -22,9 +20,8 @@ abstract class MainBaseActivity : BaseFragmentManagerActivity(), AppCompatActivi
 
     override val compositeDisposable = CompositeDisposable()
 
-    override val lifeSubject: Subject<ActivityLifeEvent> = ActivityLifecycleOwner.defaultLifeSubject()
-
-    private var exitTime: Long = 0L
+    override val lifeSubject: Subject<ActivityLifeEvent> =
+        ActivityLifecycleOwner.defaultLifeSubject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         initializeInjector()
@@ -71,16 +68,5 @@ abstract class MainBaseActivity : BaseFragmentManagerActivity(), AppCompatActivi
         destroyLifecycle()
     }
 
-    override fun onBackPressed(currentStackSize: Int): Boolean {
-        if (super.onBackPressed(currentStackSize))
-            return true
-
-        if (currentStackSize == 1)
-            if (System.currentTimeMillis() - exitTime > 2000) {
-                Toast.makeText(this, R.string.exit_info, Toast.LENGTH_SHORT).show()
-                exitTime = System.currentTimeMillis()
-                return true
-            }
-        return false
-    }
 }
+

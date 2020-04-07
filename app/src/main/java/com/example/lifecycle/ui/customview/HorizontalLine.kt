@@ -9,11 +9,13 @@ import android.view.MotionEvent
 import android.widget.ImageView
 import androidx.appcompat.widget.AppCompatImageView
 import com.example.lifecycle.R
+import com.example.lifecycle.model.GPRDataManager
 import com.example.lifecycle.utils.SharedPrefModel
 
 
 class HorizontalLine (context: Context, attributeSet: AttributeSet): AppCompatImageView(context,attributeSet) {
 
+    val dataInstance = GPRDataManager
     var trace = 0
     private var lastY  = 0
     val gprPaddingLeft = 80f
@@ -24,8 +26,8 @@ class HorizontalLine (context: Context, attributeSet: AttributeSet): AppCompatIm
     //像素宽高
     val rectWidth = 1f
     val rectHeight = 2f
-    val gprImageViewWidth = rectWidth*SharedPrefModel.defaultTraces
-    val gprImageViewHeight = rectHeight*SharedPrefModel.samples
+    val gprImageViewWidth = rectWidth*dataInstance.defaultTraces
+    val gprImageViewHeight = rectHeight*dataInstance.samples
     val leftStart = gprPaddingLeft
     val leftEnd = leftStart+gprImageViewWidth
     val topStart = 30+gprPaddingTop
@@ -45,9 +47,9 @@ class HorizontalLine (context: Context, attributeSet: AttributeSet): AppCompatIm
 
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
         super.onLayout(changed, left, top, right, bottom)
-        trace = ((top-topStart+height/2)/gprImageViewHeight * SharedPrefModel.samples).toInt()
-        if (trace>=SharedPrefModel.samples){
-            trace = SharedPrefModel.samples-1
+        trace = ((top-topStart+height/2)/gprImageViewHeight * dataInstance.samples).toInt()
+        if (trace>=dataInstance.samples){
+            trace = dataInstance.samples-1
         }else if(trace<0){
             trace = 0
         }
@@ -84,13 +86,15 @@ class HorizontalLine (context: Context, attributeSet: AttributeSet): AppCompatIm
                     offsetY = 0
                 }
                 layout(left , top+offsetY , right , bottom+offsetY)
+                //offsetTopAndBottom(offsetY)
+                //scrollTo(0,offsetY)
                 mLeft = left
                 mRight = right
                 mTop = top
                 mBottom = bottom
-                trace = ((top-topStart+height/2)/gprImageViewHeight * SharedPrefModel.samples).toInt()
-                if (trace>=SharedPrefModel.samples){
-                   trace = SharedPrefModel.samples-1
+                trace = ((top-topStart+height/2)/gprImageViewHeight * dataInstance.samples).toInt()
+                if (trace>=dataInstance.samples){
+                   trace = dataInstance.samples-1
                 }else if(trace<0){
                     trace = 0
                 }

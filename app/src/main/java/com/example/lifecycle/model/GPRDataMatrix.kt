@@ -1,18 +1,19 @@
 package com.example.lifecycle.model
 
-import android.util.Log
 import com.example.lifecycle.utils.RealDoubleFFT
 import com.example.lifecycle.utils.SharedPrefModel
-import com.photo.utils.Constants
 import io.reactivex.Single
-import kotlin.math.*
+import kotlin.math.abs
+import kotlin.math.atan
+import kotlin.math.ln
+import kotlin.math.pow
 
 /**
  * 按行存储
  */
 data class GPRDataMatrix(var row: Int, var column : Int, var matrix : Array<FloatArray>,var max :Float,var min :Float) {
 
-
+    val dataInstance = GPRDataManager
     fun clone():GPRDataMatrix{
         val newMatrix = matrix.clone()
         return GPRDataMatrix(row,column, newMatrix,max,min)
@@ -26,20 +27,12 @@ data class GPRDataMatrix(var row: Int, var column : Int, var matrix : Array<Floa
         min = gprDataMatrix.min
     }
 
-    /**
-     * 道深计算
-     */
-    fun verticalDistance(trace:Int,start:Int = 100,end:Int = 150){
-
-        val depth = SharedPrefModel.timeWindow * (2.99792458E8 / sqrt(SharedPrefModel.dielectric)) / 2.0E9
-        Log.d("xia","  $depth")
-    }
 
     //时间零点计算
     fun timeZero():Float{
         var i = 1
         while (true) {
-            if (i >= SharedPrefModel.samples) {
+            if (i >= dataInstance.samples) {
                 i = 0
                 break
             } else if (matrix[0][i] < matrix[0][i-1] - 400.0) {
@@ -50,7 +43,7 @@ data class GPRDataMatrix(var row: Int, var column : Int, var matrix : Array<Floa
         }
         var i2 = i + 1
         while (true) {
-            if (i2 >= SharedPrefModel.samples) {
+            if (i2 >= dataInstance.samples) {
                 break
             } else if (matrix[0][i2] > matrix[0][i2-1]) {
                 i = i2
@@ -139,16 +132,11 @@ data class GPRDataMatrix(var row: Int, var column : Int, var matrix : Array<Floa
     }
 
 
-    //todo 截断过滤器
+    //截断过滤器
     fun TruncationFiliter(truncation : Float)= Single.fromCallable {
             for( i in 0 until row){  //hang
             for( j in 0 until column){  //lie
-                if(matrix[i][j] in max-1000 .. max){
-                    matrix[i][j] *= truncation
-                }
-                if(matrix[i][j] in min .. min+1000){
-                    matrix[i][j] *= truncation
-                }
+                matrix[i][j] = atan(matrix[i][j] * 0.001f * truncation)
             }
         }
         updateMM()

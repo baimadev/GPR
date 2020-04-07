@@ -9,29 +9,12 @@ object SharedPrefModel : KotprefModel() {
 
     var isFistTime by booleanPref(true)
     var mSaturation by floatPref(255f)
-    var mLum by floatPref(255f)
-    var mTruncation by intPref(50)
-
-    var samples by intPref(0)
-    var samples2 by intPref(0)
-
-    var lastTrace by intPref(0)
-
-    var col by intPref(0)
-    var col2 by intPref(0)
-
-    var timeWindow by floatPref(0f)
-    var distanceInterval by floatPref(0f)
+    var mLum by floatPref(0.5f)
 
     var mHuePos by intPref(0)
     var mSaturationPos by intPref(127)
     var mLumPos by intPref(127)
 
     var defaultTraces by intPref(1500)
-
-    var mMidLinePos by intPref(defaultTraces/2)
-
-    var dielectric by floatPref(6f)
-
 
 }

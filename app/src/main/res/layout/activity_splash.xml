@@ -42,20 +42,8 @@
         android:text="@string/import_data"
         android:textColor="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.676"
+        app:layout_constraintHorizontal_bias="0.751"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent" />
-
-    <Button
-        android:id="@+id/bt_ensure"
-        android:layout_width="wrap_content"
-        android:layout_height="30dp"
-        android:layout_marginRight="88dp"
-        android:layout_marginBottom="48dp"
-        android:background="@drawable/radius_green"
-        android:text="@string/ensure"
-        android:textColor="@color/white"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintRight_toRightOf="parent" />
 
 

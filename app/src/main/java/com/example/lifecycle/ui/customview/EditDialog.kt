@@ -6,21 +6,11 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.view.Gravity
-import android.view.LayoutInflater
-import android.widget.ImageView
-import android.widget.SeekBar
 import android.widget.Toast
 import androidx.coordinatorlayout.widget.CoordinatorLayout
-import androidx.databinding.DataBindingUtil
-import androidx.databinding.ViewDataBinding
-import com.example.lifecycle.BR
 import com.example.lifecycle.R
-import com.example.lifecycle.databinding.DialogEditTextBinding
-import com.example.lifecycle.utils.ImageHelper
+import com.example.lifecycle.model.GPRDataManager
 import com.example.lifecycle.utils.SharedPrefModel
-import com.photo.utils.Constants
-import io.reactivex.Single
-import kotlinx.android.synthetic.main.dialog_color.*
 import kotlinx.android.synthetic.main.dialog_color.bt_close
 import kotlinx.android.synthetic.main.dialog_color.image_done
 import kotlinx.android.synthetic.main.dialog_edit_text.*
@@ -30,7 +20,7 @@ import java.sql.DataTruncation
 import java.util.*
 class EditDialog (mContext: Context):Dialog(mContext, R.style.MyDialog) {
 
-
+    val dataInstance = GPRDataManager
     var onPartInput: ((Int) -> Unit)? = null
     var onCloseClick: (() -> Unit)? = null
     var file: File? = null
@@ -44,8 +34,8 @@ class EditDialog (mContext: Context):Dialog(mContext, R.style.MyDialog) {
 
         val str = context.resources.getString(R.string.part)
         file?.let{
-            val part = SharedPrefModel.lastTrace/ SharedPrefModel.defaultTraces
-            val size = (it.length()/(1024*1024)).toInt()
+            val part = dataInstance.lastTrace/ dataInstance.defaultTraces
+            val size = (it.length()/(1024f*1024f)).toInt()
             val string = String.format(str,size,part)
             tv_hint.text = string
         }
@@ -61,7 +51,7 @@ class EditDialog (mContext: Context):Dialog(mContext, R.style.MyDialog) {
 
         image_done.setOnClickListener {
             val part = edit_part.text.toString()
-            if(part.isNotEmpty() && (part.toInt() in 1..SharedPrefModel.lastTrace/ SharedPrefModel.defaultTraces)){
+            if(part.isNotEmpty() && (part.toInt() in 1..dataInstance.lastTrace/ SharedPrefModel.defaultTraces)){
                 onPartInput?.invoke(part.toInt())
             }else{
                 Toast.makeText(context,"请输入正确范围的值！", Toast.LENGTH_SHORT).show()

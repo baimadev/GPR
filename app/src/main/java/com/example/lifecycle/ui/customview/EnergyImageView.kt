@@ -17,6 +17,7 @@ import kotlin.math.abs
 
 class EnergyImageView (context: Context, attributeSet: AttributeSet): AppCompatImageView(context,attributeSet) {
 
+    val dataInstance = GPRDataManager
     private val textPaint = Paint()
     private val midLineWidth = 8
     var gprData:GPRDataMatrix = GPRDataMatrix.emptyMatrix()
@@ -24,7 +25,7 @@ class EnergyImageView (context: Context, attributeSet: AttributeSet): AppCompatI
     val linePaint = Paint()
     var defaultX = 0f
     var defaultY = 0f
-    var trace = SharedPrefModel.mMidLinePos
+    var trace = dataInstance.mMidLinePos
     lateinit var lastPos:Pair<Float,Float>
 
     init {
@@ -34,7 +35,7 @@ class EnergyImageView (context: Context, attributeSet: AttributeSet): AppCompatI
         midPaint.style = Paint.Style.FILL
         linePaint.color = Color.BLACK
         linePaint.style = Paint.Style.STROKE
-        linePaint.strokeWidth = 5f
+        linePaint.strokeWidth = 3f
         linePaint.isAntiAlias = true
         textPaint.textSize = 40f
         textPaint.color = Color.BLACK
@@ -86,11 +87,11 @@ class EnergyImageView (context: Context, attributeSet: AttributeSet): AppCompatI
             lastPos = currentPos
         }
         canvas.drawText("Trace:$trace",20f,height-20f,textPaint)
-        canvas.drawText("Distance:${String.format("%.1f",(trace*SharedPrefModel.distanceInterval))}",20f,height-60f,textPaint)
+        canvas.drawText("Distance:${String.format("%.1f",(trace*dataInstance.distanceInterval))}",20f,height-60f,textPaint)
 
     }
 
-    fun updateData(trace:Int = SharedPrefModel.mMidLinePos,data:GPRDataMatrix? = null){
+    fun updateData(trace:Int = dataInstance.mMidLinePos,data:GPRDataMatrix? = null){
         this.trace = trace
         data?.let {
             this.gprData.copy(data)

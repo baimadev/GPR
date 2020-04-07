@@ -1,32 +1,20 @@
 package com.example.lifecycle.ui.fragment
 
 import android.app.AlertDialog
-import android.content.DialogInterface
-import android.content.Intent
-import android.util.Log
-import android.view.ViewTreeObserver
 import com.example.lifecycle.ui.customview.GPRImageView
 import com.example.lifecycle.R
 import com.example.lifecycle.databinding.FragmentTopBinding
 import com.example.lifecycle.model.GPRDataManager
 import com.example.lifecycle.model.GPRDataMatrix
-import com.example.lifecycle.ui.activity.SplashActivity
 import com.example.lifecycle.ui.customview.ColorDialog
-import com.example.lifecycle.ui.customview.TFilterDialog
-import com.example.lifecycle.utils.ColorUtils
-import com.example.lifecycle.utils.FileUtil
-import com.example.lifecycle.utils.SharedPrefModel
 import com.jakewharton.rxbinding2.view.RxView
 import com.photo.ui.fragment.base.BindingFragment
 import com.photo.utils.Constants
 import com.photo.utils.netProgressDialog
 import com.photo.utils.switchThread
 import io.reactivex.Single
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.fragment_top.*
 import timber.log.Timber
-import java.io.File
 import kotlin.math.abs
 import kotlin.math.sqrt
 
@@ -36,8 +24,8 @@ class TopFragment : BindingFragment<FragmentTopBinding, TopViewModel>(
     R.layout.fragment_top
 ) {
 
+    val dataInstance = GPRDataManager
     lateinit var gprImage: GPRImageView
-
 
     override fun initView() {
         gprImage = matrix
@@ -47,20 +35,7 @@ class TopFragment : BindingFragment<FragmentTopBinding, TopViewModel>(
         //关闭
         RxView.clicks(binding.imageClose)
             .doOnNext {
-                AlertDialog.Builder(context)
-                    .setTitle("确定放弃编辑吗？")
-                    .setPositiveButton(
-                        "确定"
-                    ) { dialog, which ->
-                        compositeDisposable.clear()
-                        finish()
-                        activity!!.finish()
-                        dialog.dismiss()
-                    }
-                    .setNegativeButton("取消") { dialog, which ->
-                        dialog.dismiss()
-                    }.create().show()
-
+                onClose()
             }
             .bindLife()
 
@@ -118,7 +93,7 @@ class TopFragment : BindingFragment<FragmentTopBinding, TopViewModel>(
         RxView.clicks(binding.imageTf)
             .doOnNext {
                 revoke()
-                viewModel.editNumber.value = 1f
+                viewModel.editNumber.value = 0.1f
                 viewModel.editMode.value = EditMode.Truncation
             }
             .bindLife()
@@ -162,7 +137,6 @@ class TopFragment : BindingFragment<FragmentTopBinding, TopViewModel>(
             }
             .bindLife()
 
-        //todo 介电常数输入
         //测量
         RxView.clicks(binding.imageMeasure)
             .doOnNext {
@@ -198,12 +172,7 @@ class TopFragment : BindingFragment<FragmentTopBinding, TopViewModel>(
                     }
                     EditMode.Truncation -> {
                         viewModel.editNumber.let {
-                            val t = it.value!! + 0.25f
-                            if (t > 1f) {
-                                it.value = 1f
-                            } else {
-                                it.value = t
-                            }
+                            it.value = String.format("%.2f", it.value!! * 2f).toFloat()
                             filter { matrix ->
                                 matrix.TruncationFiliter(it.value!!)
                             }
@@ -273,11 +242,11 @@ class TopFragment : BindingFragment<FragmentTopBinding, TopViewModel>(
 
                     EditMode.Truncation -> {
                         viewModel.editNumber.let {
-                            val t = it.value!! - 0.25f
-                            if (t < 0f) {
-                                it.value = 0f
+                            val f = String.format("%.2f", it.value!! * 0.5f).toFloat()
+                            if (f < 0.01f) {
+                                it.value = 0.01f
                             } else {
-                                it.value = t
+                                it.value = f
                             }
                             filter { matrix ->
                                 matrix.TruncationFiliter(it.value!!)
@@ -416,6 +385,22 @@ class TopFragment : BindingFragment<FragmentTopBinding, TopViewModel>(
             }
         }
     }
+    fun onClose(){
+        AlertDialog.Builder(context)
+            .setTitle("确定放弃编辑吗？")
+            .setPositiveButton(
+                "确定"
+            ) { dialog, which ->
+                compositeDisposable.clear()
+                GPRDataManager.clear()
+                finish()
+                activity!!.finish()
+                dialog.dismiss()
+            }
+            .setNegativeButton("取消") { dialog, which ->
+                dialog.dismiss()
+            }.create().show()
+    }
 
     fun timeZeroCorrect(offset: Int) {
         //每一次操作 应该都是上一次数据
@@ -452,24 +437,16 @@ class TopFragment : BindingFragment<FragmentTopBinding, TopViewModel>(
             .bindLife()
     }
 
-    val depth = SharedPrefModel.timeWindow * (2.99792458E8 / sqrt(
-        SharedPrefModel.dielectric
+    val depth = dataInstance.timeWindow * (2.99792458E8 / sqrt(
+        dataInstance.dielectric
     )) / 2.0E9
 
     fun measure(verticalLeft: Int, verticalRight: Int, horizontalLeft: Int, horizontalRight: Int) {
         val height =
-            abs(horizontalLeft - horizontalRight).toFloat() / SharedPrefModel.samples * depth
+            abs(horizontalLeft - horizontalRight).toFloat() / dataInstance.samples * depth
         viewModel.measureHeight.value = String.format("高度：%.2f m", height)
-        val width = abs(verticalLeft - verticalRight) * SharedPrefModel.distanceInterval
+        val width = abs(verticalLeft - verticalRight) * dataInstance.distanceInterval
         viewModel.measureWidth.value = String.format("宽度：%.2f m", width)
-        saveLayoutState()
-    }
-
-    fun saveLayoutState() {
-        val left = binding.leftHorizontalLine
-        left.run {
-            layout(mLeft, mRight, mTop, mBottom)
-        }
     }
 
 }

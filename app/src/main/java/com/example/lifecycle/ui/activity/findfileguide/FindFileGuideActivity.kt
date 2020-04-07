@@ -31,7 +31,7 @@ import java.util.*
 class FindFileGuideActivity : BaseActivity() {
 
     val currentDirList = LinkedList<File>()
-
+    val dataInstance = GPRDataManager
     lateinit var dirListAdapter :DirListAdapter
     lateinit var fileListAdapter: FileListAdapter
     var radFile : File? = null
@@ -42,6 +42,13 @@ class FindFileGuideActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_find_file)
         initRecyclerView()
+
+        tool_bar.setNavigationIcon(R.drawable.icon_global_back)
+
+        tool_bar.setNavigationOnClickListener {
+            returnLast()
+        }
+
         RxView.clicks(bt_ensure)
             .doOnNext {
                 if(radFile!=null && rd3File!=null){
@@ -80,10 +87,12 @@ class FindFileGuideActivity : BaseActivity() {
                 dielectric.text = "请输入介电常数（默认为6）"
                 dielectric.showInt = 6.0f
                 dielectric.onPartInput = {
-                    SharedPrefModel.dielectric = it
+                    dataInstance.dielectric = it
                     dielectric.dismiss()
                     //判断文件大小
-                    if(SharedPrefModel.lastTrace> SharedPrefModel.defaultTraces){
+                    val a=dataInstance.lastTrace
+                    val ad=SharedPrefModel.defaultTraces
+                    if(dataInstance.lastTrace> SharedPrefModel.defaultTraces){
                         val dialog  = EditDialog(this)
                         dialog.file = rd3File
                         val progressDialog = DialogUtil.showProgressDialogNow(this)
@@ -92,20 +101,20 @@ class FindFileGuideActivity : BaseActivity() {
                         }
                         dialog.onPartInput = {
                             dialog.dismiss()
-                            Single.just(FileUtil.readFileToMatrix(rd3File!!, it))
+                            Single.just(FileUtil.readRd3(rd3File!!, it))
                                 .switchThread()
                                 .doOnSuccess { matrix ->
                                     progressDialog.dismiss()
                                     GPRDataManager.initData(matrix)
-                                    finish()
                                     startActivity(Intent(this, MainActivity::class.java))
                                 }
                                 .bindLife()
                         }
                         dialog.show()
                     }else{
-                        SharedPrefModel.defaultTraces = SharedPrefModel.lastTrace
-                        Single.just(FileUtil.readFileToMatrix(rd3File!!,0 ))
+                        dataInstance.defaultTraces = dataInstance.lastTrace
+                        dataInstance.mMidLinePos = dataInstance.defaultTraces/2
+                        Single.just(FileUtil.readRd3(rd3File!!,0 ))
                             .switchThread()
                             .doOnSuccess { matrix ->
                                 GPRDataManager.initData(matrix)
@@ -164,7 +173,7 @@ class FindFileGuideActivity : BaseActivity() {
                             radFile = file
                         }
                     }
-                    "asc" -> {
+                    "rd3" -> {
                         if(rd3File == file ){
                             check.visibility = View.INVISIBLE
                             rd3File = null

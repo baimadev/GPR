@@ -29,6 +29,7 @@ import java.io.*
 
 class SplashActivity : BaseActivity() {
 
+    val dataInstance = GPRDataManager
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
@@ -42,24 +43,22 @@ class SplashActivity : BaseActivity() {
 
         checkPermission()
 
+        //选择文件
         bt_import_data.setOnClickListener {
-            importFile()
-        }
-
-        bt_ensure.setOnClickListener {
             startActivity(
                 Intent(this,
                     FindFileGuideActivity::class.java)
             )
-
         }
 
+        //GO!
         RxView.clicks(bt_import)
             .doOnNext {
-                importFile()
+                importRd3()
             }
             .bindLife()
 
+        //初始化色域
         Single.just(ColorUtils.initColoracion())
             .switchThread()
             .bindLife()
@@ -67,24 +66,49 @@ class SplashActivity : BaseActivity() {
     }
 
     private fun goToNextActivity(intent: Intent? = this.intent) {
-        finish()
         startActivity(Intent(this, MainActivity::class.java))
         overridePendingTransition(0, 0)
     }
 
+
     //导入文件
-    fun importFile(){
-        val rd3File = File(Constants.RD3)
+    fun importRd3(){
+        val rd3File = File(Constants.REAL_RD3)
         val radFile = File(Constants.RAD)
 
-        Single.just(FileUtil.readRad(radFile))
-            .netProgressDialog(this)
-            .switchThread()
-            .doOnSuccess {
-                    //判断文件大小
-                    if(SharedPrefModel.lastTrace> SharedPrefModel.defaultTraces){
-                            Single.just(FileUtil.readFileToMatrix(rd3File, 1))
-                                .netProgressDialog(this)
+            Single.just(FileUtil.readRad(radFile))
+                .netProgressDialog(this)
+                .switchThread()
+                .doOnSuccess {
+                    val dielectric = EditDialog2(this)
+                    dielectric.text = "请输入介电常数（默认为6）"
+                    dielectric.showInt = 6.0f
+                    dielectric.onPartInput = {
+                        dataInstance.dielectric = it
+                        dielectric.dismiss()
+                        //判断文件大小
+                        if(dataInstance.lastTrace> SharedPrefModel.defaultTraces){
+                            val dialog  = EditDialog(this)
+                            dialog.file = rd3File
+                            val progressDialog = DialogUtil.showProgressDialogNow(this)
+                            dialog.onCloseClick = {
+                                progressDialog.dismiss()
+                            }
+                            dialog.onPartInput = {
+                                dialog.dismiss()
+                                Single.just(FileUtil.readRd3(rd3File, it))
+                                    .switchThread()
+                                    .doOnSuccess { matrix ->
+                                        progressDialog.dismiss()
+                                        GPRDataManager.initData(matrix)
+                                        startActivity(Intent(this, MainActivity::class.java))
+                                    }
+                                    .bindLife()
+                            }
+                            dialog.show()
+                        }else{
+                            dataInstance.defaultTraces = dataInstance.lastTrace
+                            Single.just(FileUtil.readRd3(rd3File!!,0 ))
                                 .switchThread()
                                 .doOnSuccess { matrix ->
                                     GPRDataManager.initData(matrix)
@@ -92,22 +116,13 @@ class SplashActivity : BaseActivity() {
                                     startActivity(Intent(this, MainActivity::class.java))
                                 }
                                 .bindLife()
-
-                    }else{
-                        SharedPrefModel.defaultTraces = SharedPrefModel.lastTrace
-                        Single.just(FileUtil.readFileToMatrix(rd3File,0 ))
-                            .switchThread()
-                            .doOnSuccess { matrix ->
-                                GPRDataManager.initData(matrix)
-                                finish()
-                                startActivity(Intent(this, MainActivity::class.java))
-                            }
-                            .bindLife()
+                        }
                     }
-            }
-            .bindLife()
-    }
+                    dielectric.show()
+                }
+                .bindLife()
 
+    }
 
     @SuppressLint("CheckResult")
     fun checkPermission() {
