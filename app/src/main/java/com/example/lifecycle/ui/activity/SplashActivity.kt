@@ -41,6 +41,8 @@ class SplashActivity : BaseActivity() {
 
     private fun init(intent: Intent? = this.intent) {
 
+        splash_view.beginAnim()
+
         checkPermission()
 
         //选择文件
@@ -54,7 +56,8 @@ class SplashActivity : BaseActivity() {
         //GO!
         RxView.clicks(bt_import)
             .doOnNext {
-                importRd3()
+                splash_view.beginAnim()
+                //importRd3()
             }
             .bindLife()
 
@@ -69,7 +72,6 @@ class SplashActivity : BaseActivity() {
         startActivity(Intent(this, MainActivity::class.java))
         overridePendingTransition(0, 0)
     }
-
 
     //导入文件
     fun importRd3(){

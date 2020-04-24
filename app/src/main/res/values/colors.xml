@@ -12,6 +12,11 @@
     <color name="gray">#999999</color>
     <color name="light_green">#64DD17</color>
     <color name="splash_primary">#232532</color>
-    <color name="splash_blue">#0c7eac</color>
+    <color name="splash_pink">#F06292</color>
+    <color name="splash_red">#DD2C00</color>
+    <color name="splash_blue">#0288D1</color>
+    <color name="splash_purple">#7C4DFF</color>
+    <color name="splash_green">#00C853</color>
+    <color name="splash_orange">#FFAB40</color>
 
 </resources>
