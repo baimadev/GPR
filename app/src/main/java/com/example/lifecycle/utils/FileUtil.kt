@@ -55,6 +55,10 @@ object FileUtil {
         val indexOf4: Int = stringBuilder.indexOf("DISTANCE INTERVAL")
         instance.distanceInterval =
             cuantoes(stringBuilder.substring(indexOf4 + 18, stringBuilder.indexOf("\n", indexOf4)))
+
+        val indexOf5: Int = stringBuilder.indexOf("FREQUENCY")
+        instance.frequency =
+            cuantoes(stringBuilder.substring(indexOf5 + 10, stringBuilder.indexOf("\n", indexOf5)))
     }
 
     /**

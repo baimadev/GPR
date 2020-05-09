@@ -1,8 +1,12 @@
 package com.example.lifecycle.model
 
+import android.util.Log
 import com.example.lifecycle.utils.RealDoubleFFT
 import com.example.lifecycle.utils.SharedPrefModel
+import com.example.lifecycle.utils.fft
+import com.example.lifecycle.utils.iFFT
 import io.reactivex.Single
+import timber.log.Timber
 import kotlin.math.abs
 import kotlin.math.atan
 import kotlin.math.ln
@@ -14,6 +18,7 @@ import kotlin.math.pow
 data class GPRDataMatrix(var row: Int, var column : Int, var matrix : Array<FloatArray>,var max :Float,var min :Float) {
 
     val dataInstance = GPRDataManager
+    var imageList:Array<FloatArray?>? = null
     fun clone():GPRDataMatrix{
         val newMatrix = matrix.clone()
         return GPRDataMatrix(row,column, newMatrix,max,min)
@@ -28,7 +33,7 @@ data class GPRDataMatrix(var row: Int, var column : Int, var matrix : Array<Floa
     }
 
 
-    //时间零点计算
+    //时间零点计算 samples每一道的数据个数
     fun timeZero():Float{
         var i = 1
         while (true) {
@@ -91,52 +96,25 @@ data class GPRDataMatrix(var row: Int, var column : Int, var matrix : Array<Floa
                 matrix[i][j] -= average
             }
         }
-        if (max > -min) {
-            min = -max
-        }
-        if (max < -min) {
-            max = -min
-        }
-
-    }
-
-    fun DCFiliter(trunca:Float) {
-
-        val d4 = 0.9f
-        if (max > Math.abs(min)) {
-            min = -max
-        } else {
-            max = -min
-        }
-        var i3 = 0
-        while (i3 < row) {
-            var i4 = 0
-            while (i4 < column) {
-                if (trunca == d4) {
-                    matrix[i3][i4] = abs(matrix[i3][i4]) + min
-                }
-                matrix[i3][i4] = matrix[i3][i4]  * trunca
-
-                if (matrix[i3][i4] > max) {
-                    matrix[i3][i4] = max*trunca
-                }
-                if (matrix[i3][i4] < min) {
-                    matrix[i3][i4] = min*trunca
-                }
-                i4++
-            }
-            i3++
-        }
-        max *= trunca
-        min *= trunca
+        updateMM()
     }
 
 
-    //截断过滤器
-    fun TruncationFiliter(truncation : Float)= Single.fromCallable {
+    //反正切过滤器
+    fun AtanFiliter(truncation : Float)= Single.fromCallable {
             for( i in 0 until row){  //hang
             for( j in 0 until column){  //lie
                 matrix[i][j] = atan(matrix[i][j] * 0.001f * truncation)
+            }
+        }
+        updateMM()
+    }
+
+    //截断过滤器
+    fun tfFiliter(truncation : Float)= Single.fromCallable {
+        for( i in 0 until row){  //hang
+            for( j in 0 until column){  //lie
+                matrix[i][j] = matrix[i][j]*truncation
             }
         }
         updateMM()
@@ -150,6 +128,10 @@ data class GPRDataMatrix(var row: Int, var column : Int, var matrix : Array<Floa
                 val number = matrix[i][j]
                 matrix[i][j] = (sgn(number) * (abs(number).toDouble().pow(truncation.toDouble()))).toFloat()
             }
+            Log.e("xia","raw ${matrix[i][10]}")
+            Log.e("xia"," factor ${truncation}")
+            Log.e("xia", "pow ${(abs(matrix[i][10]).toDouble().pow(truncation.toDouble()))}")
+            Log.e("xia", "result ${(sgn(matrix[i][10]) * (abs(matrix[i][10]).toDouble().pow(truncation.toDouble()))).toFloat()}")
         }
         updateMM()
     }
@@ -215,69 +197,91 @@ data class GPRDataMatrix(var row: Int, var column : Int, var matrix : Array<Floa
 
     //傅里叶
     fun frequency(fouri : Int = 10)=Single.fromCallable{
+        val imagList = arrayOfNulls<FloatArray>(row)
+        for( i in 0 until row){  //hang
+            val pair= fft(matrix[i])
+            imagList[i] = pair.second.toFloatArray()
+            matrix[i] = pair.first.toFloatArray()
+        }
+        this.imageList = imagList
+        updateMM()
+    }
 
-        var realDoubleFFT: RealDoubleFFT
-        var i: Int
-        val i3: Int = row
-        val i4: Int = column
-        var i5 = i4 - fouri
-        var realDoubleFFT2 = RealDoubleFFT(fouri)
-        val dArr = DoubleArray(fouri)
-        val dArr2 = DoubleArray(i4)
-        val d = i5.toFloat()
-        val d2 = i4.toFloat()
-        val d3 = d * 1f / d2
-        var i6 = 0
-        var d4 = 0.001
-        while (i6 < i3) {
-            var d5 = d4
-            var i7 = 0
-            while (i7 < i5) {
-                for (i8 in 0 until fouri) {
-                    dArr[i8] = matrix[i6][i7 + i8].toDouble()
-                }
-                realDoubleFFT2.mo6045ft(dArr)
-                var i9 = 1
-                var d6 = 0.0
-                var d7 = 0.0
-                while (i9 < fouri) {
-                    if (abs(dArr[i9]) > d6) {
-                        d6 = dArr[i9]
-                        i = i5
-                        realDoubleFFT = realDoubleFFT2
-                        d7 = ln(i9.toDouble())
-                    } else {
-                        i = i5
-                        realDoubleFFT = realDoubleFFT2
-                    }
-                    i9++
-                    i5 = i
-                    realDoubleFFT2 = realDoubleFFT
-                }
-                val i10 = i5
-                val realDoubleFFT3: RealDoubleFFT = realDoubleFFT2
-                dArr2[i7] = d7
-                if (d5 < d7) {
-                    d5 = d7
-                }
-                i7++
-                i5 = i10
-                realDoubleFFT2 = realDoubleFFT3
-            }
-            val i11 = i5
-            val realDoubleFFT4: RealDoubleFFT = realDoubleFFT2
-            for (i12 in 0 until i4) {
-                val d8 = i12.toDouble()
-                java.lang.Double.isNaN(d8)
-                matrix[i6][i12] = dArr2[(d8 * d3).toInt()].toFloat()
-            }
-            i6++
-            d4 = d5
-            i5 = i11
-            realDoubleFFT2 = realDoubleFFT4
+    //反傅里叶
+    fun iFrequency()=Single.fromCallable{
+        if (imageList==null)return@fromCallable
+        for( i in 0 until row){  
+            matrix[i]= iFFT(matrix[i],imageList!![i]!!).first.toFloatArray()
         }
         updateMM()
     }
+
+
+    //傅里叶
+//    fun frequency(fouri : Int = 10)=Single.fromCallable{
+//
+//        var realDoubleFFT: RealDoubleFFT
+//        var i: Int
+//        val i3: Int = row
+//        val i4: Int = column
+//        var i5 = i4 - fouri
+//        var realDoubleFFT2 = RealDoubleFFT(fouri)
+//        val dArr = DoubleArray(fouri)
+//        val dArr2 = DoubleArray(i4)
+//        val d = i5.toFloat()
+//        val d2 = i4.toFloat()
+//        val d3 = d * 1f / d2
+//        var i6 = 0
+//        var d4 = 0.001
+//        while (i6 < i3) {
+//            var d5 = d4
+//            var i7 = 0
+//            while (i7 < i5) {
+//                for (i8 in 0 until fouri) {
+//                    dArr[i8] = matrix[i6][i7 + i8].toDouble()
+//                }
+//                realDoubleFFT2.mo6045ft(dArr)
+//                var i9 = 1
+//                var d6 = 0.0
+//                var d7 = 0.0
+//                while (i9 < fouri) {
+//                    if (abs(dArr[i9]) > d6) {
+//                        d6 = dArr[i9]
+//                        i = i5
+//                        realDoubleFFT = realDoubleFFT2
+//                        d7 = ln(i9.toDouble())
+//                    } else {
+//                        i = i5
+//                        realDoubleFFT = realDoubleFFT2
+//                    }
+//                    i9++
+//                    i5 = i
+//                    realDoubleFFT2 = realDoubleFFT
+//                }
+//                val i10 = i5
+//                val realDoubleFFT3: RealDoubleFFT = realDoubleFFT2
+//                dArr2[i7] = d7
+//                if (d5 < d7) {
+//                    d5 = d7
+//                }
+//                i7++
+//                i5 = i10
+//                realDoubleFFT2 = realDoubleFFT3
+//            }
+//            val i11 = i5
+//            val realDoubleFFT4: RealDoubleFFT = realDoubleFFT2
+//            for (i12 in 0 until i4) {
+//                val d8 = i12.toDouble()
+//                java.lang.Double.isNaN(d8)
+//                matrix[i6][i12] = dArr2[(d8 * d3).toInt()].toFloat()
+//            }
+//            i6++
+//            d4 = d5
+//            i5 = i11
+//            realDoubleFFT2 = realDoubleFFT4
+//        }
+//        updateMM()
+//    }
 
     fun sgn(number:Float):Int{
         return when {

@@ -57,7 +57,7 @@ class SplashActivity : BaseActivity() {
         RxView.clicks(bt_import)
             .doOnNext {
                 splash_view.beginAnim()
-                //importRd3()
+                importRd3()
             }
             .bindLife()
 

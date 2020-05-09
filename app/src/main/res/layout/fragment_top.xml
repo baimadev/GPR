@@ -56,18 +56,18 @@
                 android:textSize="20sp"
                 android:textStyle="bold" />
 
-            <TextView
-                android:id="@+id/image_crop"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_marginStart="10dp"
-                android:background="?android:attr/selectableItemBackground"
-                android:gravity="center"
-                android:padding="5dp"
-                android:text="DC"
-                android:textColor="@color/white"
-                android:textSize="20sp"
-                android:textStyle="bold" />
+<!--            <TextView-->
+<!--                android:id="@+id/image_crop"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="match_parent"-->
+<!--                android:layout_marginStart="10dp"-->
+<!--                android:background="?android:attr/selectableItemBackground"-->
+<!--                android:gravity="center"-->
+<!--                android:padding="5dp"-->
+<!--                android:text="DC"-->
+<!--                android:textColor="@color/white"-->
+<!--                android:textSize="20sp"-->
+<!--                android:textStyle="bold" />-->
 
             <TextView
                 android:id="@+id/time_zero"
@@ -83,27 +83,14 @@
                 android:textStyle="bold" />
 
             <TextView
-                android:id="@+id/image_tf"
+                android:id="@+id/signal_amplificatiion"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_marginStart="10dp"
                 android:background="?android:attr/selectableItemBackground"
                 android:gravity="center"
                 android:padding="5dp"
-                android:text="截断"
-                android:textColor="@color/white"
-                android:textSize="20sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/image_potential"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_marginStart="10dp"
-                android:background="?android:attr/selectableItemBackground"
-                android:gravity="center"
-                android:padding="5dp"
-                android:text="电位"
+                android:text="信号增益"
                 android:textColor="@color/white"
                 android:textSize="20sp"
                 android:textStyle="bold" />

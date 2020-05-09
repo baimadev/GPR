@@ -8,6 +8,7 @@ object GPRDataManager {
     val matrixT:GPRDataMatrix = GPRDataMatrix.emptyMatrix()
     val matrixF:GPRDataMatrix = GPRDataMatrix.emptyMatrix()
 
+    var frequency = 0f
     var lastTrace = 0
     var col = 0
     var timeWindow =0f
@@ -25,6 +26,7 @@ object GPRDataManager {
         }
 
     fun initData(matrix:GPRDataMatrix){
+        matrix.DCFiliter()
         matrixA.copy(matrix)
         matrixT.copy(matrix)
         matrixF.copy(matrix)
@@ -47,6 +49,7 @@ object GPRDataManager {
         mMidLinePos = defaultTraces/2
         dielectric = 6f
         gprHeight = 2f
+        frequency = 0f
     }
 
 }

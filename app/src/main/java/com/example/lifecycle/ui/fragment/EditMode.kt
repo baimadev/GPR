@@ -9,5 +9,6 @@ enum class EditMode {
     Derivation,
     Background,
     Frequency,
-    Measure
+    Measure,
+    Atan
 }

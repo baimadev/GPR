@@ -31,7 +31,7 @@ open class MainApplication : Application(), KodeinAware {
 
 
         Kotpref.init(this)
-
+        Timber.plant(Timber.DebugTree())
         ThrottleUtil.setIsThrottleOpen(true)
         ThrottleUtil.setThrottleTime(300L)
         RxJavaPlugins.setErrorHandler {

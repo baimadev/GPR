@@ -11,6 +11,7 @@ class TopViewModel (application: Application):BaseViewModel(application ){
     val editMode = MutableLiveData<EditMode>(EditMode.NullMode)
     val measureWidth = MutableLiveData<String>("宽度：0 m")
     val measureHeight = MutableLiveData<String>("高度：0 m")
+    val smoothNumber = MutableLiveData<Float>(1f)
 
 }
 

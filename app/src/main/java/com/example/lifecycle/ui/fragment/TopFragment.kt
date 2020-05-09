@@ -7,9 +7,11 @@ import com.example.lifecycle.databinding.FragmentTopBinding
 import com.example.lifecycle.model.GPRDataManager
 import com.example.lifecycle.model.GPRDataMatrix
 import com.example.lifecycle.ui.customview.ColorDialog
+import com.example.lifecycle.ui.customview.SignalAmplificationDialog
+import com.example.lifecycle.utils.fft
+import com.example.lifecycle.utils.iFFT
 import com.jakewharton.rxbinding2.view.RxView
 import com.photo.ui.fragment.base.BindingFragment
-import com.photo.utils.Constants
 import com.photo.utils.netProgressDialog
 import com.photo.utils.switchThread
 import io.reactivex.Single
@@ -65,18 +67,45 @@ class TopFragment : BindingFragment<FragmentTopBinding, TopViewModel>(
             }
             .bindLife()
 
-        //DC
-        RxView.clicks(binding.imageCrop)
+        //信号增益
+        RxView.clicks(binding.signalAmplificatiion)
             .doOnNext {
-                revoke()
-                viewModel.editNumber.value = 1f
-                viewModel.editMode.value = EditMode.DCFilter
-                GPRDataManager.matrixT.DCFiliter()
-                    .switchThread()
-                    .netProgressDialog(context!!)
-                    .bindLife()
+                val dialog = SignalAmplificationDialog(context!!)
+                    .apply {
+                        //截断增益滤波
+                        onTruncation = {
+                            revoke()
+                            viewModel.editNumber.value = 0.1f
+                            viewModel.editMode.value = EditMode.Truncation
+                        }
+                        //电位增益滤波
+                        onPotential = {
+                            revoke()
+                            viewModel.editNumber.value = 1f
+                            viewModel.editMode.value = EditMode.Potential
+                        }
+                        //反正切增益滤波
+                        onAtan = {
+                            revoke()
+                            viewModel.editNumber.value = 0.1f
+                            viewModel.editMode.value = EditMode.Atan
+                        }
+                    }
+                dialog.show()
             }
             .bindLife()
+        //DC
+//        RxView.clicks(binding.imageCrop)
+//            .doOnNext {
+//                revoke()
+//                viewModel.editNumber.value = 1f
+//                viewModel.editMode.value = EditMode.DCFilter
+//                GPRDataManager.matrixT.DCFiliter()
+//                    .switchThread()
+//                    .netProgressDialog(context!!)
+//                    .bindLife()
+//            }
+//            .bindLife()
 
         //时间零点
         RxView.clicks(time_zero)
@@ -88,24 +117,6 @@ class TopFragment : BindingFragment<FragmentTopBinding, TopViewModel>(
             }
             .bindLife()
 
-
-        //截断滤波
-        RxView.clicks(binding.imageTf)
-            .doOnNext {
-                revoke()
-                viewModel.editNumber.value = 0.1f
-                viewModel.editMode.value = EditMode.Truncation
-            }
-            .bindLife()
-
-        //电位增益滤波
-        RxView.clicks(binding.imagePotential)
-            .doOnNext {
-                revoke()
-                viewModel.editNumber.value = 1f
-                viewModel.editMode.value = EditMode.Potential
-            }
-            .bindLife()
 
         //垂直推导
         RxView.clicks(binding.imageDerivation)
@@ -119,7 +130,7 @@ class TopFragment : BindingFragment<FragmentTopBinding, TopViewModel>(
         RxView.clicks(binding.imageBackground)
             .doOnNext {
                 revoke()
-                viewModel.editNumber.value = 1f
+                viewModel.editNumber.value = 0.1f
                 viewModel.editMode.value = EditMode.Background
 
             }
@@ -164,20 +175,31 @@ class TopFragment : BindingFragment<FragmentTopBinding, TopViewModel>(
                         viewModel.editNumber.add(1f)
                         timeZeroCorrect(viewModel.editNumber.value!!.toInt())
                     }
-                    EditMode.DCFilter -> {
-                        viewModel.editNumber.let {
-                            it.value = String.format("%.2f", it.value!! * 2f).toFloat()
-                            dcFiliter(it.value!!)
-                        }
-                    }
-                    EditMode.Truncation -> {
+//                    EditMode.DCFilter -> {
+//                        viewModel.editNumber.let {
+//                            it.value = String.format("%.2f", it.value!! * 2f).toFloat()
+//                            dcFiliter(it.value!!)
+//                        }
+//                    }
+                    EditMode.Atan -> {
                         viewModel.editNumber.let {
                             it.value = String.format("%.2f", it.value!! * 2f).toFloat()
                             filter { matrix ->
-                                matrix.TruncationFiliter(it.value!!)
+                                matrix.AtanFiliter(it.value!!)
                             }
                         }
                     }
+
+                    EditMode.Truncation -> {
+                        viewModel.editNumber.let {
+                            it.value = String.format("%.2f", it.value!! * 2f).toFloat()
+                            if (it.value!!>1f){it.value = 1f}
+                            filter { matrix ->
+                                matrix.tfFiliter(it.value!!)
+                            }
+                        }
+                    }
+
                     EditMode.Potential -> {
                         viewModel.editNumber.let {
                             it.value = String.format("%.2f", it.value!! * 0.75f).toFloat()
@@ -195,10 +217,17 @@ class TopFragment : BindingFragment<FragmentTopBinding, TopViewModel>(
                         }
                     }
                     EditMode.Background -> {
-                        viewModel.editNumber.let {
+                        val cur = viewModel.editNumber.value!!
+                        if(cur==1f) return@doOnNext
+                        viewModel.smoothNumber.let {
                             it.value = String.format("%.2f", it.value!! * 2f).toFloat()
                             filter { matrix ->
                                 matrix.smoothLine(it.value!!)
+                            }
+                            if(cur+0.1f>1f){
+                                viewModel.editNumber.value = 1f
+                            }else{
+                                viewModel.editNumber.value = String.format("%.2f", cur+0.1f).toFloat()
                             }
                         }
 
@@ -228,15 +257,29 @@ class TopFragment : BindingFragment<FragmentTopBinding, TopViewModel>(
                         timeZeroCorrect(viewModel.editNumber.value!!.toInt())
                     }
 
-                    EditMode.DCFilter -> {
+//                    EditMode.DCFilter -> {
+//                        viewModel.editNumber.let {
+//                            val t = String.format("%.2f", it.value!! * 0.75f).toFloat()
+//                            if (t < 0.9f) {
+//                                it.value = 0.9f
+//                            } else {
+//                                it.value = t
+//                            }
+//                            dcFiliter(it.value!!)
+//                        }
+//                    }
+
+                    EditMode.Atan -> {
                         viewModel.editNumber.let {
-                            val t = String.format("%.2f", it.value!! * 0.75f).toFloat()
-                            if (t < 0.9f) {
-                                it.value = 0.9f
+                            val f = String.format("%.2f", it.value!! * 0.5f).toFloat()
+                            if (f < 0.01f) {
+                                it.value = 0.01f
                             } else {
-                                it.value = t
+                                it.value = f
                             }
-                            dcFiliter(it.value!!)
+                            filter { matrix ->
+                                matrix.AtanFiliter(it.value!!)
+                            }
                         }
                     }
 
@@ -249,7 +292,7 @@ class TopFragment : BindingFragment<FragmentTopBinding, TopViewModel>(
                                 it.value = f
                             }
                             filter { matrix ->
-                                matrix.TruncationFiliter(it.value!!)
+                                matrix.tfFiliter(it.value!!)
                             }
                         }
                     }
@@ -273,13 +316,19 @@ class TopFragment : BindingFragment<FragmentTopBinding, TopViewModel>(
                     }
 
                     EditMode.Background -> {
-                        viewModel.editNumber.let {
+                        viewModel.smoothNumber.let {
                             it.value = String.format("%.2f", it.value!! * 0.5f).toFloat()
                             if (it.value!! < 1f) {
                                 it.value = 1f
                             }
                             filter { matrix ->
                                 matrix.smoothLine(it.value!!)
+                            }
+                            val cur = viewModel.editNumber.value!!
+                            if(cur-0.1f<=0f){
+                                viewModel.editNumber.value = 0f
+                            }else{
+                                viewModel.editNumber.value = String.format("%.2f", cur-0.1f).toFloat()
                             }
                         }
 
@@ -414,17 +463,6 @@ class TopFragment : BindingFragment<FragmentTopBinding, TopViewModel>(
             .bindLife()
     }
 
-    fun dcFiliter(offset: Float) {
-        //每一次操作 应该都是上一次数据
-        GPRDataManager.matrixT.copy(GPRDataManager.matrixF)
-        Single.just(GPRDataManager.matrixT.DCFiliter(offset))
-            .switchThread()
-            .netProgressDialog(context!!)
-            .doOnSuccess {
-                updateView(GPRDataManager.matrixT)
-            }
-            .bindLife()
-    }
 
     fun updateView(matrix: GPRDataMatrix, operation: (() -> Unit)? = null) {
         gprImage.updateData(matrix)
@@ -437,9 +475,7 @@ class TopFragment : BindingFragment<FragmentTopBinding, TopViewModel>(
             .bindLife()
     }
 
-    val depth = dataInstance.timeWindow * (2.99792458E8 / sqrt(
-        dataInstance.dielectric
-    )) / 2.0E9
+    val depth = dataInstance.timeWindow * (2.99792458E8 / sqrt(dataInstance.dielectric)) / 2.0E9
 
     fun measure(verticalLeft: Int, verticalRight: Int, horizontalLeft: Int, horizontalRight: Int) {
         val height =

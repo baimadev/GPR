@@ -19,7 +19,8 @@ class SplashView : View {
     private var startPointList = ArrayList<PointF>(5)
     private var endPointList = ArrayList<PointF>(5)
     private var colorList = arrayListOf<Int>(R.color.splash_pink,R.color.splash_red,R.color.splash_green,R.color.splash_orange,R.color.splash_purple)
-    private var radiusList = arrayListOf<Float>(20*dp,28*dp,40*dp,60*dp,18*dp)
+    private var radiusListDefault = arrayListOf<Float>(20*dp,28*dp,40*dp,60*dp,18*dp)
+    private var radiusList = arrayListOf<Float>(0f,0f,0f,0f,0f,0f)
     private val mPaint = Paint()
     private val degreesUnit = 60f
     private val mN = 6
@@ -51,8 +52,10 @@ class SplashView : View {
         valueAnimator.duration = 1000L
         valueAnimator.interpolator = AccelerateInterpolator()
         valueAnimator.addUpdateListener {
+            val flag = it.animatedValue as Float
             for (i in 0 until 5){
-                showPointList[i] = secondBessel(it.animatedValue as Float,startPointList[i],controlPointList[i],endPointList[i])
+                radiusList[i] = radiusListDefault[i]*flag
+                showPointList[i] = secondBessel(flag,startPointList[i],controlPointList[i],endPointList[i])
             }
             postInvalidate()
         }
