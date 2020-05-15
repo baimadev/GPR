@@ -36,7 +36,7 @@
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:buttonTint="@color/colorPrimary"
-            android:text="截断增益"
+            android:text="道内均衡"
             android:textColor="@color/back" />
 
         <RadioButton

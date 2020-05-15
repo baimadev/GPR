@@ -74,10 +74,10 @@ class TopFragment : BindingFragment<FragmentTopBinding, TopViewModel>(
             .doOnNext {
                 val dialog = SignalAmplificationDialog(context!!)
                     .apply {
-                        //截断增益滤波
+                        //道内均衡
                         onTruncation = {
                             revoke()
-                            viewModel.editNumber.value = 0.1f
+                            viewModel.editNumber.value = 15f
                             viewModel.editMode.value = EditMode.Truncation
                         }
                         //电位增益滤波
@@ -204,8 +204,8 @@ class TopFragment : BindingFragment<FragmentTopBinding, TopViewModel>(
 
                     EditMode.Truncation -> {
                         viewModel.editNumber.let {
-                            it.value = String.format("%.2f", it.value!! * 2f).toFloat()
-                            if (it.value!!>1f){it.value = 1f}
+                            it.value = String.format("%.2f", it.value!! + 5f).toFloat()
+                            if (it.value!!>100f){it.value = 100f}
                             filter { matrix ->
                                 matrix.tfFiliter(it.value!!)
                             }
@@ -297,9 +297,9 @@ class TopFragment : BindingFragment<FragmentTopBinding, TopViewModel>(
 
                     EditMode.Truncation -> {
                         viewModel.editNumber.let {
-                            val f = String.format("%.2f", it.value!! * 0.5f).toFloat()
-                            if (f < 0.01f) {
-                                it.value = 0.01f
+                            val f = String.format("%.2f", it.value!! - 5f).toFloat()
+                            if (f < 0f) {
+                                it.value = 1f
                             } else {
                                 it.value = f
                             }
