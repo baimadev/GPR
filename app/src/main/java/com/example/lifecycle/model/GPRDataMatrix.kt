@@ -1,16 +1,10 @@
 package com.example.lifecycle.model
 
 import android.util.Log
-import com.example.lifecycle.utils.RealDoubleFFT
-import com.example.lifecycle.utils.SharedPrefModel
-import com.example.lifecycle.utils.fft
-import com.example.lifecycle.utils.iFFT
+import com.example.lifecycle.utils.*
 import io.reactivex.Single
 import timber.log.Timber
-import kotlin.math.abs
-import kotlin.math.atan
-import kotlin.math.ln
-import kotlin.math.pow
+import kotlin.math.*
 
 /**
  * 按行存储
@@ -128,10 +122,7 @@ data class GPRDataMatrix(var row: Int, var column : Int, var matrix : Array<Floa
                 val number = matrix[i][j]
                 matrix[i][j] = (sgn(number) * (abs(number).toDouble().pow(truncation.toDouble()))).toFloat()
             }
-            Log.e("xia","raw ${matrix[i][10]}")
-            Log.e("xia"," factor ${truncation}")
-            Log.e("xia", "pow ${(abs(matrix[i][10]).toDouble().pow(truncation.toDouble()))}")
-            Log.e("xia", "result ${(sgn(matrix[i][10]) * (abs(matrix[i][10]).toDouble().pow(truncation.toDouble()))).toFloat()}")
+
         }
         updateMM()
     }
@@ -208,80 +199,131 @@ data class GPRDataMatrix(var row: Int, var column : Int, var matrix : Array<Floa
     }
 
     //反傅里叶
-    fun iFrequency()=Single.fromCallable{
-        if (imageList==null)return@fromCallable
-        for( i in 0 until row){  
+    fun iFrequency(){
+        if (imageList==null)return
+        for( i in 0 until row){
             matrix[i]= iFFT(matrix[i],imageList!![i]!!).first.toFloatArray()
         }
         updateMM()
     }
 
+    //FIR
+    fun firFiliter(wn:WindowType,band:Int,fln:Float,fhn:Float)=Single.fromCallable{
+        val h = getFirFilterFactor(wn,band,fln,fhn)
 
-    //傅里叶
-//    fun frequency(fouri : Int = 10)=Single.fromCallable{
-//
-//        var realDoubleFFT: RealDoubleFFT
-//        var i: Int
-//        val i3: Int = row
-//        val i4: Int = column
-//        var i5 = i4 - fouri
-//        var realDoubleFFT2 = RealDoubleFFT(fouri)
-//        val dArr = DoubleArray(fouri)
-//        val dArr2 = DoubleArray(i4)
-//        val d = i5.toFloat()
-//        val d2 = i4.toFloat()
-//        val d3 = d * 1f / d2
-//        var i6 = 0
-//        var d4 = 0.001
-//        while (i6 < i3) {
-//            var d5 = d4
-//            var i7 = 0
-//            while (i7 < i5) {
-//                for (i8 in 0 until fouri) {
-//                    dArr[i8] = matrix[i6][i7 + i8].toDouble()
-//                }
-//                realDoubleFFT2.mo6045ft(dArr)
-//                var i9 = 1
-//                var d6 = 0.0
-//                var d7 = 0.0
-//                while (i9 < fouri) {
-//                    if (abs(dArr[i9]) > d6) {
-//                        d6 = dArr[i9]
-//                        i = i5
-//                        realDoubleFFT = realDoubleFFT2
-//                        d7 = ln(i9.toDouble())
-//                    } else {
-//                        i = i5
-//                        realDoubleFFT = realDoubleFFT2
-//                    }
-//                    i9++
-//                    i5 = i
-//                    realDoubleFFT2 = realDoubleFFT
-//                }
-//                val i10 = i5
-//                val realDoubleFFT3: RealDoubleFFT = realDoubleFFT2
-//                dArr2[i7] = d7
-//                if (d5 < d7) {
-//                    d5 = d7
-//                }
-//                i7++
-//                i5 = i10
-//                realDoubleFFT2 = realDoubleFFT3
-//            }
-//            val i11 = i5
-//            val realDoubleFFT4: RealDoubleFFT = realDoubleFFT2
-//            for (i12 in 0 until i4) {
-//                val d8 = i12.toDouble()
-//                java.lang.Double.isNaN(d8)
-//                matrix[i6][i12] = dArr2[(d8 * d3).toInt()].toFloat()
-//            }
-//            i6++
-//            d4 = d5
-//            i5 = i11
-//            realDoubleFFT2 = realDoubleFFT4
-//        }
-//        updateMM()
-//    }
+        for( i in 0 until row){  //hang
+            if(i == 50 ){
+                Log.e("xia","before matrix ${matrix[i][50]}  h ${h[i]}")
+            }
+            matrix[i] = juanji(h,matrix[i])
+            if(i == 50 ){
+                Log.e("xia","after matrix ${matrix[i][50]}")
+            }
+        }
+    }
+
+
+    fun juanji(h:Array<Double?>,raw:FloatArray):FloatArray{
+
+        val l = h.size+raw.size-1
+        val result = FloatArray(l)
+        for(i in 0 until l){
+            var tem =0.0
+            for(j in raw.indices){
+                if((i-j+1)>=0&&(i-j+1)<h.size){
+                    tem+=h[i-j+1]!!*raw[j]
+                }
+            }
+            result[i] = tem.toFloat()
+        }
+
+        val rr = FloatArray(column)
+
+        for((index, i) in ((column-1)/2 until (column-1)/2+column).withIndex()){
+                rr[index] = result[i]
+        }
+        return rr
+    }
+
+    val pi = 4.0*atan(1.0)
+    fun getFirFilterFactor(wn:WindowType,band:Int,fln:Float,fhn:Float): Array<Double?> {
+        val n  = column
+        var n2 = 0
+        var mid = 0
+        if(n%2 ==0 ){
+            n2=n/2-1
+            mid = 1
+        }else{
+            n2= n/2
+            mid = 0
+        }
+
+        val h = arrayOfNulls<Double>(n+1)
+        val delay = n/2.0
+        var wcl = 2.0*pi*fln
+        var wcl2= 0.0
+        if(band >3){wcl2 = 2.0*pi*fhn}
+        when(band){
+            1 ->{
+                for(i in 0..n2){
+                    val s = i-delay
+                    h[i] = (sin(wcl*s)/(pi*s))*window(wn,n+1,i)
+                    h[n-i]=h[i]
+                }
+                if(mid==1)h[n/2] = wcl/pi
+            }
+
+            2 ->{
+                for(i in 0..n2){
+                    val s = i-delay
+                    h[i] = (sin(pi*s)-sin(wcl*s))/(pi*s)
+                    h[i] = h[i]!! * window(wn,n+1,i)
+                    h[n-i]=h[i]
+                }
+                if(mid==1)h[n/2] =1.0-wcl/pi
+            }
+
+            3 ->{
+                for(i in 0..n2){
+                    val s = i-delay
+                    h[i] = (sin(wcl2*s)-sin(wcl*s))/(pi*s)
+                    h[i] = h[i]!! * window(wn,n+1,i)
+                    h[n-i]=h[i]
+                }
+                if(mid==1)h[n/2] =(wcl2-wcl)/pi
+            }
+
+            4 ->{
+                for(i in 0..n2){
+                    val s = i-delay
+                    h[i] = (sin(wcl*s)+sin(pi*s)-sin(wcl2*s))/(pi*s)
+                    h[i] = h[i]!! * window(wn,n+1,i)
+                    h[n-i]=h[i]
+                }
+                if(mid==1)h[n/2] =(wcl+pi-wcl2)/pi
+            }
+
+        }
+        return h
+    }
+
+
+    fun window(wn:WindowType,n:Int,i :Int):Double{
+        var w=1.0
+        when(wn){
+            WindowType.juxing ->{w=1.0}
+            WindowType.tuji ->{
+                val k =(n-2)/10
+                if(i<=k)w = 0.5*(1.0- cos(i*pi/(k+1)))
+                if(i>n-k-2)w = 0.5*(1.0- cos((n-i-1)*pi/(k+1)))
+            }
+            WindowType.sanjiao ->{ w=1.0 - abs(1.0-2*i/(n-1.0))}
+            WindowType.hanning ->{ w =0.5*(1.0-cos(2*i*pi/(n-1)))}
+            WindowType.haimin ->{w = 0.54-0.46*cos(2*i*pi/(n-1))}
+            WindowType.bula ->{w = 0.42-0.5*cos(2*i*pi/(n-1))+0.08*cos(4*i*pi/(n-1))}
+        }
+        return w
+    }
 
     fun sgn(number:Float):Int{
         return when {

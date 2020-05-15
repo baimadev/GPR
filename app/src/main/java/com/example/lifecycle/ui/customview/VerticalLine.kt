@@ -73,7 +73,6 @@ class VerticalLine (context: Context, attributeSet: AttributeSet): AppCompatImag
                 }
                 layout(left + offsetX, top , right + offsetX, bottom)
                 trace = ((x-30-paddingLeft)/gprImageViewWidth * dataInstance.defaultTraces).toInt()
-                Log.e("xia","left $left paddingleft $paddingLeft width $width trace $trace")
                 if (trace>=dataInstance.defaultTraces){
                    trace = dataInstance.defaultTraces-1
                 }else if(trace<0){

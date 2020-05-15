@@ -1,12 +1,14 @@
 package com.example.lifecycle.ui.fragment
 
 import android.app.AlertDialog
+import android.util.Log
 import com.example.lifecycle.ui.customview.GPRImageView
 import com.example.lifecycle.R
 import com.example.lifecycle.databinding.FragmentTopBinding
 import com.example.lifecycle.model.GPRDataManager
 import com.example.lifecycle.model.GPRDataMatrix
 import com.example.lifecycle.ui.customview.ColorDialog
+import com.example.lifecycle.ui.customview.FrequencyFilterDialog
 import com.example.lifecycle.ui.customview.SignalAmplificationDialog
 import com.example.lifecycle.utils.fft
 import com.example.lifecycle.utils.iFFT
@@ -142,9 +144,19 @@ class TopFragment : BindingFragment<FragmentTopBinding, TopViewModel>(
                 revoke()
                 viewModel.editNumber.value = 10f
                 viewModel.editMode.value = EditMode.Frequency
-                filter {
-                    it.frequency()
+//                filter {
+//                    it.frequency()
+//                }
+                val dialog = FrequencyFilterDialog(context!!)
+                dialog.aContext = context!!
+                dialog.onEnsure = { lx,clx,lBand,hBnad ->
+                    Log.e("xia","invoke")
+                    Log.e("xia","$lx $clx $lBand")
+                    filter {
+                        it.firFiliter(clx,lx,lBand,hBnad)
+                    }
                 }
+                dialog.show()
             }
             .bindLife()
 

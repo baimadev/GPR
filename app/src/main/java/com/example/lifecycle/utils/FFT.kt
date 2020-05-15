@@ -10,7 +10,13 @@ fun fft(raw:FloatArray): Pair<Array<Float>, Array<Float>> {
     val size = raw.size
     val reList  = Array<Float>(size){0f}
     val imList  = Array<Float>(size){0f}
-    for(i in 0 until  size){
+    var mid = 0
+    if(size%2==1){
+        mid = size/2
+    }else{
+        mid = size/2-1
+    }
+    for(i in 0 ..  mid){
         var re=0.0
         var im=0.0
         for(j in 0 until size){
@@ -19,6 +25,8 @@ fun fft(raw:FloatArray): Pair<Array<Float>, Array<Float>> {
         }
         reList[i] = re.toFloat()
         imList[i] = im.toFloat()
+        imList[size-1-i] = im.toFloat()
+        reList[size-1-i] = re.toFloat()
     }
     return reList to imList
 }
