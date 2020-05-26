@@ -19,7 +19,9 @@ import com.photo.utils.switchThread
 import io.reactivex.Single
 import kotlinx.android.synthetic.main.fragment_top.*
 import timber.log.Timber
+import java.lang.Math.pow
 import kotlin.math.abs
+import kotlin.math.pow
 import kotlin.math.sqrt
 
 
@@ -144,16 +146,13 @@ class TopFragment : BindingFragment<FragmentTopBinding, TopViewModel>(
                 revoke()
                 viewModel.editNumber.value = 10f
                 viewModel.editMode.value = EditMode.Frequency
-//                filter {
-//                    it.frequency()
-//                }
                 val dialog = FrequencyFilterDialog(context!!)
                 dialog.aContext = context!!
+                dialog.setCancelable(true)
                 dialog.onEnsure = { lx,clx,lBand,hBnad ->
-                    Log.e("xia","invoke")
-                    Log.e("xia","$lx $clx $lBand")
                     filter {
-                        it.firFiliter(clx,lx,lBand,hBnad)
+                        val e = 10.0.pow(-3).toFloat()
+                        it.firFiliter(clx,lx,lBand*e,hBnad*e)
                     }
                 }
                 dialog.show()

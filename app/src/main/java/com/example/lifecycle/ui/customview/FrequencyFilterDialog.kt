@@ -58,12 +58,16 @@ class FrequencyFilterDialog (mContext: Context): Dialog(mContext, R.style.MyDial
             }
         }
 
-        tv_fr.text = "(当前频率${GPRDataManager.frequency}HZ)"
+        binding.btClose.setOnClickListener { this.dismiss() }
 
 
         edit_hband.addTextChangedListener(object :TextWatcher{
             override fun afterTextChanged(s: Editable?) {
-
+                s?.let {
+                    if(it.toString() != ""){
+                        hBand = s.toString().toFloat()
+                    }
+                }
             }
 
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
@@ -71,13 +75,18 @@ class FrequencyFilterDialog (mContext: Context): Dialog(mContext, R.style.MyDial
             }
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                hBand = s.toString().toFloat()
+
             }
         })
 
         edit_lband.addTextChangedListener(object :TextWatcher{
             override fun afterTextChanged(s: Editable?) {
+                s?.let {
+                    if(it.toString() != ""){
+                        lBand = s.toString().toFloat()
+                    }
 
+                }
             }
 
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
@@ -85,7 +94,7 @@ class FrequencyFilterDialog (mContext: Context): Dialog(mContext, R.style.MyDial
             }
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                lBand = s.toString().toFloat()
+
             }
         })
 
@@ -111,7 +120,6 @@ class FrequencyFilterDialog (mContext: Context): Dialog(mContext, R.style.MyDial
             return
         }
         onEnsure?.invoke(lxType,clxType,lBand,hBand)
-        Log.e("xia","lband ${lBand} hband ${hBand}")
         this.dismiss()
     }
 

@@ -246,15 +246,8 @@ data class GPRDataMatrix(
     //FIR
     fun firFiliter(wn: WindowType, band: Int, fln: Float, fhn: Float) = Single.fromCallable {
         val h = getFirFilterFactor(wn, band, fln, fhn)
-
         for (i in 0 until row) {  //hang
-            if (i == 50) {
-                Log.e("xia", "before matrix ${matrix[i][50]}  h ${h[i]}")
-            }
             matrix[i] = juanji(h, matrix[i])
-            if (i == 50) {
-                Log.e("xia", "after matrix ${matrix[i][50]}")
-            }
         }
     }
 
