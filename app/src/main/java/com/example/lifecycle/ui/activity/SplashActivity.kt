@@ -57,7 +57,11 @@ class SplashActivity : BaseActivity() {
         RxView.clicks(bt_import)
             .doOnNext {
                 splash_view.beginAnim()
-                importRd3()
+                startActivity(
+                    Intent(this,
+                        FindFileGuideActivity::class.java)
+                )
+                //importRd3()
             }
             .bindLife()
 

@@ -383,14 +383,14 @@ class TopFragment : BindingFragment<FragmentTopBinding, TopViewModel>(
                     EditMode.Truncation -> {
                         viewModel.editNumber.value = 1f
                     }
-                    EditMode.Potential -> {
+                    EditMode.Potential -> { 
                         viewModel.editNumber.value = 1f
                     }
                     EditMode.Derivation -> {
                         viewModel.editNumber.value = 1f
                     }
                     EditMode.Background -> {
-                        viewModel.editNumber.value = 1f
+                        viewModel.editNumber.value = 0.1f
                     }
                     EditMode.Frequency -> {
                         viewModel.editNumber.value = 10f
